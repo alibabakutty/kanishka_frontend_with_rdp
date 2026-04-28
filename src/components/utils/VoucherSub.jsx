@@ -9,6 +9,7 @@ const VoucherSub = ({
 	allocation,
 	row,
 	afterAllocation,
+	approve
 }) => {
 	const inputRefs = useRef([]);
 
@@ -21,7 +22,7 @@ const VoucherSub = ({
 	]);
 	const [filteredLocation] = useState(location);
 	const [selectedLocation, setSelectedLocation] = useState(0);
-	const updateClose = () => {
+ 	const updateClose = () => {
 		isClose(false);
 	};
 	const totalQuantity = new Intl.NumberFormat("en-IN", {
@@ -222,7 +223,35 @@ const VoucherSub = ({
 			setSelectedLocation(0);
 		}
 	}
+	const handleQuantityChange = (allocateIndex, value) => {
+    const qty = parseFloat(value) || 0;
 
+    setOrderData(prev => {
+        const updated = [...prev];
+
+        const currentRow = updated[row];
+
+        const updatedAllocation = currentRow.allocation.map((item, index) => {
+            if (index === allocateIndex) {
+                const rate = parseFloat(item.rate) || 0;
+                return {
+                    ...item,
+                    quantity: value,
+                    amount: (qty * rate).toFixed(2)
+                };
+            }
+            return item;
+        });
+
+        updated[row] = {
+            ...currentRow,
+            allocation: updatedAllocation
+        };
+        return updated;
+
+    });
+	
+};
 
 	return (
 		<>
@@ -320,13 +349,19 @@ const VoucherSub = ({
 												<td className="border border-slate-300">
 													<input
 														autoComplete="off"
-														type="text"
-														name="quantity"
-														value={allocate.quantity || ""}
+														  type="text"
+														   name="quantity"
+														   defaultValue={allocate.quantity}
+															onChange={(e) =>
+																handleQuantityChange(allocateIndex, e.target.value)
+															}
 														className="outline-0 text-right focus:bg-[#fee8af] pr-0.5 w-full appearance-none font-semibold"
 														ref={(el) =>
 															(inputRefs.current[allocateIndex * 8 + 3] = el)
 														}
+														onChange={(e)=>{
+															handleQuantityChange(allocateIndex, e.target.value)
+														}}
 														onKeyDown={(e) => {
 															if (
 																e.key === 'Enter' &&
@@ -335,9 +370,8 @@ const VoucherSub = ({
 																handleKeyDown(e, allocateIndex, 3);
 															}
 														}}
-
-														readOnly
-													/>
+                                                		readOnly={approve === 'Approved'}
+ 													/>
 												</td>
 												<td className="border border-slate-300">
 													<input
@@ -349,7 +383,6 @@ const VoucherSub = ({
 														ref={(el) =>
 															(inputRefs.current[allocateIndex * 8 + 4] = el)
 														}
-
 														onKeyDown={(e) =>
 															handleKeyDown(e, allocateIndex, 4)
 														}
@@ -367,7 +400,6 @@ const VoucherSub = ({
 														ref={(el) =>
 															(inputRefs.current[allocateIndex * 8 + 5] = el)
 														}
-
 														onKeyDown={(e) =>
 															handleKeyDown(e, allocateIndex, 5)
 														}
@@ -398,16 +430,14 @@ const VoucherSub = ({
 														type="text"
 														autoComplete="off"
 														name="amount"
-														value={(formatINR(allocate.amount || 0))}
+														value={formatINR(allocate.amount || 0)}
 														className="outline-0 text-right focus:bg-[#fee8af] pr-0.5 w-full font-semibold"
 														ref={(el) =>
 															(inputRefs.current[allocateIndex * 8 + 7] = el)
 														}
-
 														onKeyDown={(e) =>
 															handleKeyDown(e, allocateIndex, 7)
 														}
-
 														readOnly
 													/>
 												</td>

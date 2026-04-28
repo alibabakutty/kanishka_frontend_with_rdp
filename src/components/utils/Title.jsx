@@ -6,50 +6,66 @@ const Title = ({ title, customerName, orderData }) => {
     const navigate = useNavigate();
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // actionType can be 'download' or 'print'
-    const handlePdfAction = async (actionType) => {
-        try {
-            setIsProcessing(true);
-            const formattedItems = orderData?.items?.map(item => ({
-                name: item.description,
-                gst: item.gst,
-                qty: parseFloat(item.quantity),
-                rate: parseFloat(item.rate),
-                amount: item.amount,
-                hsn: item.hsn,
-                uom: item.uom
-            })) || [];
+ const handlePdfAction = async (actionType) => {
+    try {
+        setIsProcessing(true);
 
-            const res = await fetch("http://localhost:8080/api/invoice/pdf", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    invoiceNo: orderData?.voucherNo || "POM-001",
-                    date: orderData?.voucherDate || new Date().toLocaleDateString('en-GB'),
-                    customerName: customerName,
-                    orderNo: orderData?.orderNo,
-                    address: "Chennai",
-                    items: formattedItems,
-                })
-            });
+        const formattedItems = orderData?.items?.map(item => ({
+            name: item.description,
+            gst: item.gst,
+            qty: parseFloat(item.quantity),
+            rate: parseFloat(item.rate),
+            amount: item.amount,
+            hsn: item.hsn,
+            uom: item.uom
+        })) || [];
 
-            if (!res.ok) throw new Error("Failed to generate PDF");
+        const res = await fetch("http://localhost:8080/api/invoice/pdf", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                invoiceNo: orderData?.voucherNo || "POM-001",
+                date: orderData?.voucherDate || new Date().toLocaleDateString('en-GB'),
+                customerName: customerName,
+                orderNo: orderData?.orderNo,
+                address: "Chennai",
+                items: formattedItems,
+            })
+        });
 
-            const blob = await res.blob();
-            const url = window.URL.createObjectURL(blob);
+        if (!res.ok) throw new Error("Failed to generate PDF");
 
-            window.open(url);
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
 
-            // Clean up the URL object after a short delay
-            setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+        // 🔥 DIFFERENT BEHAVIOR BASED ON ACTION
+        if (actionType === "print") {
+            const printWindow = window.open(url);
 
-        } catch (error) {
-            console.error("PDF Error:", error);
-            alert("Error processing PDF request.");
-        } finally {
-            setIsProcessing(false);
+            printWindow.onload = () => {
+                printWindow.focus();
+                printWindow.print();
+            };
+        } else {
+            // ✅ DOWNLOAD FILE
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `Invoice-${orderData?.voucherNo || "file"}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
-    };
+
+        // cleanup
+        setTimeout(() => window.URL.revokeObjectURL(url), 2000);
+
+    } catch (error) {
+        console.error("PDF Error:", error);
+        alert("Error processing PDF request.");
+    } finally {
+        setIsProcessing(false);
+    }
+};
 
     return (
         <div className="bg-[#88bee6] w-full h-4 flex justify-between items-center sticky top-0 z-10 shadow-sm">

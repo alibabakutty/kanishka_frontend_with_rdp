@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CustomerMaster = () => {
   const [formData, setFormData] = useState({
@@ -8,6 +9,7 @@ const CustomerMaster = () => {
     region: "",
     salesExecutive: "",
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,7 +33,7 @@ const CustomerMaster = () => {
 
       {/* Card */}
       <div className="flex justify-end px-10">
-        <div className="w-full max-w-md bg-[#d3cec4] rounded shadow-lg p-4">
+        <div className="w-full max-w-md bg-white rounded shadow-lg p-4">
           
           {/* Card Header */}
           <div className="bg-green-800 text-white text-center font-semibold py-1 mb-4">
@@ -48,7 +50,8 @@ const CustomerMaster = () => {
                 name="customerCode"
                 value={formData.customerCode}
                 onChange={handleChange}
-                className="flex-1 border border-gray-600 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
+                  
               />
             </div>
 
@@ -59,7 +62,8 @@ const CustomerMaster = () => {
                 name="customerName"
                 value={formData.customerName}
                 onChange={handleChange}
-                className="flex-1 border border-gray-600 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
+                autoComplete="off"
               />
             </div>
 
@@ -70,7 +74,8 @@ const CustomerMaster = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="flex-1 border border-gray-600 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
+                autoComplete="off"
               />
             </div>
 
@@ -81,7 +86,8 @@ const CustomerMaster = () => {
                 name="region"
                 value={formData.region}
                 onChange={handleChange}
-                className="flex-1 border border-gray-600 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                autoComplete="off"
+                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
               />
             </div>
 
@@ -92,7 +98,8 @@ const CustomerMaster = () => {
                 name="salesExecutive"
                 value={formData.salesExecutive}
                 onChange={handleChange}
-                className="flex-1 border border-gray-600 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                autoComplete="off"
+                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
               />
             </div>
 
@@ -105,7 +112,6 @@ const CustomerMaster = () => {
                 Save
               </button>
             </div>
-
           </div>
         </div>
       </div>

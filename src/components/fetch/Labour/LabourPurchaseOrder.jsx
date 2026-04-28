@@ -1,8 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { formatDate, formatINR } from '../utils/utils';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import axios from "axios";
+import Title from "../../utils/Title";
+import Header from "../../utils/Header";
+import VoucherSub from "../../utils/VoucherSub";
+import Footer from "../../utils/Footer";
+import { useNavigate, useParams } from "react-router-dom";
+const API_URL = import.meta.env.VITE_API_URL;
+import { formatDate, formatINR } from "../../utils/utils";
 
-const FetchPurchaseOrder = () => {
+const Labour = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -10,7 +16,8 @@ const FetchPurchaseOrder = () => {
   const [focusedIndex, setFocusedIndex] = useState(0);
   const navigate = useNavigate();
   const [focusedCol, setFocusedCol] = useState(0);
-  const totalColumns = 9;
+  const totalColumns = 10;
+  const username=localStorage.getItem('username');
   const API_URL = import.meta.env.VITE_API_URL;
 
   // filter logic
@@ -22,7 +29,8 @@ const FetchPurchaseOrder = () => {
       order.voucherDate?.toLowerCase().includes(search) ||
       order.partyLedgerName?.toLowerCase().includes(search) ||
       order.voucherType?.toLowerCase().includes(search) ||
-      order.totalAmount?.toString().includes(search)       // converts number to string for searching
+      order.totalAmount?.toString().includes(search)  ||
+       order.companyName?.toLowerCase().includes(search)     // converts number to string for searching
     );
   });
 
@@ -87,7 +95,7 @@ const FetchPurchaseOrder = () => {
         // retrieve the token you stored during login(usually in localstorage)
         const token = localStorage.getItem('token');
 
-        const response = await fetch(`${API_URL}/api/v1/purchase-orders`, {
+        const response = await fetch(`${API_URL}/api/v1/purchase-orders/labourpo`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -100,7 +108,7 @@ const FetchPurchaseOrder = () => {
         }
 
         const data = await response.json();
-        setOrders(data);
+         setOrders(data);
       } catch (err) {
         setError(err.message)
       } finally {
@@ -132,15 +140,15 @@ const FetchPurchaseOrder = () => {
   return (
     <div className="h-screen flex flex-col bg-white font-sans text-xs">
       {/* Top Blue Navbar */}
-      <nav className="bg-[#003366] text-white px-4 py-2 flex justify-between items-center">
-        <h1 className="text-lg font-bold tracking-tight">PURCHASE ORDER</h1>
+      <nav className="bg-[#003366] text-white px-1 py-1 flex justify-between items-center">
+        <h1 className="text-sm font-bold tracking-tight">PURCHASE ORDER - LABOUR</h1>
 
         <div className="flex items-center gap-6">
           {/* <button className="bg-[#e63946] px-4 py-1 rounded flex items-center gap-2 font-semibold uppercase text-xs">
             <span className="bg-white text-[#e63946] rounded-sm px-0.5">■</span> ADMINISTRATOR
           </button> */}
-          <div className="text-xs">
-            <span className="font-bold">admin</span> | <button className="hover:underline">Logout</button>
+          <div className="text-sm">
+            <span className="font-bold">{username}</span> | <button className="hover:underline">Logout</button>
           </div>
         </div>
       </nav>
@@ -167,8 +175,8 @@ const FetchPurchaseOrder = () => {
       {/* Table Section */}
       <div className="flex-1 overflow-auto">
         <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-[#004d26] text-white text-left">
+          <thead className="bg-[#004d26] text-white text-left [&_th]:px-[0.5] [&_th]:py-1 [&_th]:border [&_th]:border-gray-500">
+            <tr className="bg-[#004d26] text-white text-left  ">
               <th className="border border-gray-400 text-center">S. No</th>
               <th className="border border-gray-400 text-center">Voucher Type</th>
               <th className="border border-gray-400 text-center">Voucher No</th>
@@ -178,10 +186,11 @@ const FetchPurchaseOrder = () => {
               <th className="border border-gray-400 text-right pr-2">PO Amount</th>
               <th className="border border-gray-400 text-right pr-2">Created By</th>
               <th className="border border-gray-400 text-right pr-2">Approved Status</th>
+              <th className="border border-gray-400 text-center pr-2">Company Name</th>
             </tr>
           </thead>
 
-          <tbody>
+          <tbody className="[&_th]:px-1 [&_th]:py-1 [&_th]:border [&_th]:border-gray-500" >
             {filteredOrders.length > 0 ? (
               filteredOrders.map((order, rowIndex) => {
                 const rowData = [
@@ -193,7 +202,8 @@ const FetchPurchaseOrder = () => {
                   order.partyLedgerName,
                   formatINR(order.totalAmount),
                   order.createdBy,
-                  order.approvedBy
+                  order.approvedBy,
+                  order.companyName
                 ];
 
                 return (
@@ -233,28 +243,42 @@ const FetchPurchaseOrder = () => {
               })
             ) : (
               <tr>
-                <td colSpan="9" className="text-center py-4 text-gray-500">
+                <td colSpan="10" className="text-center py-4 text-gray-500">
                   No matching records found
                 </td>
               </tr>
             )}
           </tbody>
+         {/* {grossTotal !=0 &&(
+          <tfoot >
+            <tr className="bg-[#003366] text-white px-4 py-2  justify-between items-center sticky bottom-0">
+              <th className="border border-gray-400 text-center"></th>
+              <th className="border border-gray-400 text-center"></th>
+              <th className="border border-gray-400 text-center text-[13px]">Grand Total</th>
+              <th className="border border-gray-400 text-center"></th>
+              <th className="border border-gray-400 text-center"></th>
+              <th className="border border-gray-400 text-center"></th>
+              <th className="border border-gray-400 text-right pr-2 text-[13px]">{formatINR(grossTotal)}</th>
+              <th className="border border-gray-400 text-right pr-2"></th>
+              <th className="border border-gray-400 text-right pr-2"></th>
+              <th className="border border-gray-400 text-center pr-2"></th>
+            </tr>
+          </tfoot>
+          )}*/}
         </table>
       </div>
 
       {/* 🔥 Sticky Bottom Footer */}
-      <div className="bg-[#003366] text-white px-4 py-1 flex justify-between items-center sticky bottom-0">
-
-        <div className="font-semibold text-xs ">
+    <div className="border border-gray-400 text-black px-1 py-1 flex justify-between items-center sticky bottom-0">
+        <div className="font-semibold text-sm">              
           Gross Total :
-          <span className='ml-237'>
+          <span className='ml-145'>
             {formatINR(grossTotal)}
           </span>
-        </div>
-
-      </div>
+       </div>
     </div>
+  </div>
   );
 };
 
-export default FetchPurchaseOrder;
+export default Labour;

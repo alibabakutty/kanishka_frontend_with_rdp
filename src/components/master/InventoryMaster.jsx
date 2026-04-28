@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const InventoryMaster = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +10,7 @@ const InventoryMaster = () => {
     uom: "",
     rateMaster: "",
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,7 +34,7 @@ const InventoryMaster = () => {
 
       {/* Card */}
       <div className="flex justify-end px-10">
-        <div className="w-full max-w-md bg-[#d3cec4] rounded shadow-lg p-4">
+        <div className="w-full max-w-md bg-white rounded shadow-lg p-4">
           
           {/* Card Header */}
           <div className="bg-green-800 text-white text-center font-semibold py-1 mb-4">
@@ -49,7 +51,8 @@ const InventoryMaster = () => {
                 name="itemCode"
                 value={formData.itemCode}
                 onChange={handleChange}
-                className="flex-1 border border-gray-600 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
+                autoComplete="off"
               />
             </div>
 
@@ -60,7 +63,8 @@ const InventoryMaster = () => {
                 name="itemName"
                 value={formData.itemName}
                 onChange={handleChange}
-                className="flex-1 border border-gray-600 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
+                autoComplete="off"
               />
             </div>
 
@@ -71,7 +75,8 @@ const InventoryMaster = () => {
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                className="flex-1 border border-gray-600 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
+                autoComplete="off"
               />
             </div>
 
@@ -82,7 +87,8 @@ const InventoryMaster = () => {
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="flex-1 border border-gray-600 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                autoComplete="off"
+                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
               />
             </div>
 
@@ -93,7 +99,8 @@ const InventoryMaster = () => {
                 name="uom"
                 value={formData.uom}
                 onChange={handleChange}
-                className="flex-1 border border-gray-600 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                autoComplete="off"
+                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
               />
             </div>
 
@@ -104,7 +111,8 @@ const InventoryMaster = () => {
                 name="rateMaster"
                 value={formData.rateMaster}
                 onChange={handleChange}
-                className="flex-1 border border-gray-600 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                autoComplete="off"
+                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
               />
             </div>
 
@@ -117,7 +125,6 @@ const InventoryMaster = () => {
                 Save
               </button>
             </div>
-
           </div>
         </div>
       </div>

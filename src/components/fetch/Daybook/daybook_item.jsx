@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { formatDate, formatINR } from '../utils/utils';
+import { formatDate, formatINR } from '../../utils/utils';
 
-const FetchItemPurchaseOrder = () => {
+const FetchDbItemwise = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [focusedIndex, setFocusedIndex] = useState(0);
+    const username=localStorage.getItem('username');
     const [filters, setFilters] = useState({
         voucherType: '',
         voucherNumber: '',
@@ -23,13 +24,14 @@ const FetchItemPurchaseOrder = () => {
         uom: '',
         itemAmount: '',
         createdBy: '',
-        approvedBy: ''
+        approvedBy: '',
+        companyname:''
     });
 
     const navigate = useNavigate();
     const [showFilters, setShowFilters] = useState(false);
     const [focusedCol, setFocusedCol] = useState(0);
-    const totalColumns = 16;
+    const totalColumns = 17;
     let lastOrderId = null;
     const API_URL = import.meta.env.VITE_API_URL;
 
@@ -44,7 +46,8 @@ const FetchItemPurchaseOrder = () => {
                 itemUom: item.itemUom,
                 billedQty: item.billedQty,
                 itemRate: item.itemRate,
-                itemAmount: item.itemAmount
+                itemAmount: item.itemAmount,
+                companyname:item.companyName
             }))
         );
     }, [orders]);
@@ -75,7 +78,8 @@ const FetchItemPurchaseOrder = () => {
                 (!filters.uom || order.itemUom?.toLowerCase().includes(filters.uom.toLowerCase())) &&
                 (!filters.itemAmount || Math.abs(order.itemAmount)?.toString().includes(filters.itemAmount)) &&
                 (!filters.createdBy || order.createdBy?.toLowerCase().includes(filters.createdBy.toLowerCase())) &&
-                (!filters.approvedBy || order.approvedBy?.toLowerCase().includes(filters.approvedBy.toLowerCase()));
+                (!filters.approvedBy || order.approvedBy?.toLowerCase().includes(filters.approvedBy.toLowerCase()))&&
+                (!filters.companyname || order.companyName?.toLowerCase().includes(filters.companyname.toLowerCase()));
 
             return globalMatch && columnMatch;
         });
@@ -156,7 +160,7 @@ const FetchItemPurchaseOrder = () => {
                 const token = localStorage.getItem('token');
 
                 const response = await fetch(
-                    `${API_URL}/api/v1/purchase-orders`,
+                    `${API_URL}/api/v1/purchase-orders/allpo`,
                     {
                         headers: {
                             'Content-Type': 'application/json',
@@ -215,11 +219,11 @@ const FetchItemPurchaseOrder = () => {
     if (error) return <div className="p-4 text-red-500 text-center">Error: {error}</div>;
 
     return (
-        <div className="h-screen flex flex-col bg-white text-xs">
+        <div className="h-screen flex flex-col bg-white text-sm">
             {/* Navbar */}
             <nav className="bg-[#003366] text-white px-4 py-1 flex justify-between">
-                <h1 className="text-lg font-bold">PURCHASE ORDER</h1>
-                <div>admin | Logout</div>
+                <h1 className="text-sm font-bold">DayBook - MLG</h1>
+                <div>{username} | Logout</div>
             </nav>
 
             {/* Search */}
@@ -251,7 +255,8 @@ const FetchItemPurchaseOrder = () => {
                                     uom: '',
                                     itemAmount: '',
                                     createdBy: '',
-                                    approvedBy: ''
+                                    approvedBy: '',
+                                    companyname:''
                                 });
                             }
                             return !prev;
@@ -273,32 +278,33 @@ const FetchItemPurchaseOrder = () => {
 
             {/* ✅ Horizontal Scroll Wrapper */}
             <div className="flex-1 overflow-auto">
-                <table className=" border-collapse min-w-400 border border-gray-400">
+                <table className=" border-collapse min-w-600 border border-gray-400">
                     {/* Sticky Header */}
-                    <thead className="sticky top-0 z-10">
+                    <thead className="sticky top-0 text-[12px] [&_th]:py-0.5 [&_th]:px-0.5:text-center">
                         <tr className="bg-green-800 text-white">
-                            <th className="border border-gray-400 w-9">S.No</th>
+                            <th className="border border-gray-400 w-12 ">S.No</th>
                             <th className="border border-gray-400 w-52 text-left pl-2">Voucher Type</th>
                             <th className="border border-gray-400 w-32">Voucher No</th>
                             <th className="border border-gray-400 w-32">PO No</th>
                             <th className="border border-gray-400 w-28 text-left pl-2">PO Date</th>
-                            <th className="border border-gray-400 w-86">Party Ledger Name</th>
+                            <th className="border border-gray-400 w-100">Party Ledger Name</th>
                             <th className="border border-gray-400 w-28 text-right pr-3">PO Amount</th>
-                            <th className="border border-gray-400 w-60">Item Name</th>
+                            <th className="border border-gray-400 w-100">Item Name</th>
                             <th className="border border-gray-400 w-20 text-left pl-4">HSN</th>
                             <th className="border border-gray-400 w-12">GST %</th>
                             <th className="border border-gray-400 w-12">Qty</th>
                             <th className="border border-gray-400 w-28 text-right pr-5">Rate</th>
                             <th className="border border-gray-400 w-12">UOM</th>
-                            <th className="border border-gray-400 w-24">Amount</th>
+                            <th className="border border-gray-400 w-44">Amount</th>
                             <th className="border border-gray-400 w-20">Created By</th>
-                            <th className="border border-gray-400 w-32">Approved Status</th>
+                            <th className="border border-gray-400 w-40">Approved Status</th>
+                            <th className="border border-gray-400 w-92 text-center">Company Name</th>
                         </tr>
 
                         {/* Filters */}
                         {showFilters && (
                             <tr className="bg-gray-200">
-                                <th className='border border-gray-400 px-1 py-0.5'></th>
+                                <th className='border border-gray-400 px-1 py-0.5 '></th>
                                 {Object.keys(filters).map((key) => (
                                     <th key={key}>
                                         <input
@@ -315,7 +321,7 @@ const FetchItemPurchaseOrder = () => {
                         )}
                     </thead>
 
-                    <tbody>
+                    <tbody className='text-[12px] [&_th]:py-0.5 [&_th]:px-0.5'>
                         {filteredOrders.map((order, rowIndex) => {
                             const isSameOrder = lastOrderId === order.id;
                             lastOrderId = order.id;
@@ -330,13 +336,14 @@ const FetchItemPurchaseOrder = () => {
                                 isSameOrder ? '' : formatINR(order.totalAmount),
                                 order.itemName,
                                 order.hsnCode,
-                                `${order.gstPercentage}%`,
+                                `${order.gstPercentage ? `${order.gstPercentage}%` : ''}`,
                                 order.billedQty.toFixed(2),
                                 formatINR(order.itemRate),
                                 order.itemUom,
                                 formatINR(Math.abs(order.itemAmount)),
                                 order.createdBy,
-                                order.approvedBy
+                                order.approvedBy,
+                                order.companyname
                             ];
 
                             return (
@@ -362,8 +369,12 @@ const FetchItemPurchaseOrder = () => {
                                                             ? 'bg-yellow-50'
                                                             : ''
                                                 }
-                            ${colIndex === 0 || colIndex === 1 || colIndex === 4 || colIndex === 5 || colIndex === 7 || colIndex === 8 || colIndex === 9 || colIndex === 12
-                                                    ? 'text-left pl-2'
+                            ${colIndex === 0 || colIndex === 1 || 
+                                colIndex === 2 || colIndex === 3 ||
+                                 colIndex === 4 || colIndex === 5 || 
+                                  colIndex === 7 || colIndex === 8 || 
+                                   colIndex === 9 || colIndex === 12 || colIndex === 16  || colIndex === 17
+                                                    ? 'text-left pl-1 '
                                                     : 'text-right'
                                                 }
                         `}
@@ -375,10 +386,13 @@ const FetchItemPurchaseOrder = () => {
                             );
                         })}
                     </tbody>
+    
+                    
                 </table>
             </div>
+            
             {/* 🔥 Sticky Bottom Footer */}
-            <div className="bg-[#003366] text-white px-4 py-1 sticky bottom-0">
+             <div className="border border-gray-400 text-black px-1 py-1 sticky bottom-0">
 
                 <div className="flex items-center">
 
@@ -405,8 +419,9 @@ const FetchItemPurchaseOrder = () => {
                 </div>
 
             </div>
+           
         </div>
     );
 };
 
-export default FetchItemPurchaseOrder;
+export default FetchDbItemwise;

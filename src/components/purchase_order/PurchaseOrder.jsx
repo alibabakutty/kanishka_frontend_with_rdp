@@ -10,8 +10,10 @@ import { formatDate, formatINR } from "../utils/utils";
 
 const PurchaseOrder = () => {
     const { id } = useParams();
+    const [token,SetToken]=useState("");
     const [showProduct, setShowProduct] = useState(false);
     const [showSubForm, setShowSubForm] = useState(false);
+    const [vchstatus,setVchstatus]=useState("");
     const [tableData, setTableData] = useState([
         {
             description: "",
@@ -23,6 +25,7 @@ const PurchaseOrder = () => {
             uom: "",
             discount: "",
             amount: "",
+            companyname:"",
             allocation: [
                 {
                     dueOn: "",
@@ -39,13 +42,14 @@ const PurchaseOrder = () => {
     ]);
     const tableRefs = useRef([]);
     const inputRefs = useRef([]);
-    const [selectionItem] = useState("");
+    const [selectedItem, setSelectedItem] = useState("");
     const [headerData, setHeaderData] = useState({
         customerName: '',
         voucherNo: '',
         voucherDate: '',
         voucherType: '',
-        orderNo: ''
+        orderNo: '',
+        companyname:''
     });
     const [narration, setNarration] = useState("");
     const [createdBy, setCreatedBy] = useState("");
@@ -61,19 +65,21 @@ const PurchaseOrder = () => {
     useEffect(() => {
         const fetchOrderData = async () => {
             try {
-                const token = localStorage.getItem('token');
+                SetToken(localStorage.getItem('token'));
+             
                 const response = await axios.get(`${API_URL}/api/v1/purchase-orders/${id}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
                 const data = response.data;
-                // map api
+                 // map api
                 setHeaderData({
                     customerName: data.partyLedgerName,
                     voucherNo: data.voucherNumber,
                     voucherDate: data.voucherDate,
                     voucherType: data.voucherType,
-                    orderNo: data.orderNo
+                    orderNo: data.orderNo,
+                    companyname:data.companyName
                 });
                 // map inventoryentries to your tabledata state
                 if (data.inventoryEntries && data.inventoryEntries.length > 0) {
@@ -87,6 +93,7 @@ const PurchaseOrder = () => {
                         uom: entry.itemUom,
                         discount: "",
                         amount: Math.abs(entry.itemAmount).toFixed(2),
+                        companyname:entry.companyName,
                         allocation: [
                             {
                                 dueOn: formatDate(data.voucherDate),
@@ -103,9 +110,11 @@ const PurchaseOrder = () => {
                     setTableData(mapperTableData);
                     setNarration(data.narration);
                     setCreatedBy(data.createdBy);
-                    setApprovedBy(data.approvedBy);
-                    console.log('Approved Tally Status:', data.approvedBy);
-                }
+                    setApprovedBy(
+                        data.approvedBy=="Approved By Tally" ? "Approved":''
+                    );
+                    setVchstatus(data.approvedBy);
+                 }
             } catch (error) {
                 console.error('Failed to fetch order:', error);
                 alert("Error fetching order details")
@@ -157,48 +166,48 @@ const PurchaseOrder = () => {
             }
         }
         window.addEventListener('keydown', handleGlobalKeyDown);
-
         return () => window.removeEventListener('keydown', handleGlobalKeyDown);
     }, [navigate, showSubForm, showProduct]);
 
-    const handleFormSubmit = async () => {
-        const customerName = headerData.customerName;
-        const voucherNo = headerData.voucherNo;
-        const voucherDate = headerData.voucherDate;
-        const voucherType = headerData.voucherType;
-        const orderNo = headerData.orderNo;
-        const orderItem = tableData.map((item) => ({
-            description: item.description,
-            dueDate: item.dueOn,
-            quantity: item.quantity,
-            rate: item.rate,
-            uom: item.uom,
-            discount: item.discount,
-            amount: item.amount,
-            batchWiseItem: item.allocation.map((batch) => ({
-                dueDate: batch.dueOn,
-                location: batch.location,
-                batchNo: batch.batchNo,
-                quantity: batch.quantity,
-                rate: batch.rate,
-                uom: batch.uom,
-                discount: batch.discount,
-                amount: batch.amount,
-            })),
-        }));
-        const data = {
-            customerName,
-            voucherNo,
-            voucherDate,
-            voucherType,
-            orderNo,
-            orderItem,
-            narration,
-            createdBy,
-            approvedBy
-        };
-        await axios.post('/transact/save', data);
-    };
+    // const handleFormSubmit = async () => {
+    //     const customerName = headerData.customerName;
+    //     const voucherNo = headerData.voucherNo;
+    //     const voucherDate = headerData.voucherDate;
+    //     const voucherType = headerData.voucherType;
+    //     const orderNo = headerData.orderNo;
+    //     const orderItem = tableData.map((item) => ({
+    //         description: item.description,
+    //         dueDate: item.dueOn,
+    //         quantity: item.quantity,
+    //         rate: item.rate,
+    //         uom: item.uom,
+    //         discount: item.discount,
+    //         amount: item.amount,
+    //         batchWiseItem: item.allocation.map((batch) => ({
+    //             dueDate: batch.dueOn,
+    //             location: batch.location,
+    //             batchNo: batch.batchNo,
+    //             quantity: batch.quantity,
+    //             rate: batch.rate,
+    //             uom: batch.uom,
+    //             discount: batch.discount,
+    //             amount: batch.amount,
+    //         })),
+    //     }));
+    //     const data = {
+    //         customerName,
+    //         voucherNo,
+    //         voucherDate,
+    //         voucherType,
+    //         orderNo,
+    //         orderItem,
+    //         narration,
+    //         createdBy,
+    //         approvedBy
+    //     };
+    //     await axios.post('/transact/save', data);
+    // };
+
 
     const afterAllocation = (row) => {
         setTimeout(() => {
@@ -208,6 +217,7 @@ const PurchaseOrder = () => {
 
     useEffect(() => {
         tableRefs.current = tableRefs.current.filter(ref => ref !== null);
+
     }, [tableData])
 
     const totalQuantity = useMemo(() => {
@@ -230,6 +240,8 @@ const PurchaseOrder = () => {
 
         return amt.toFixed(2);
     }, [tableData]);
+
+ 
 
     return (
         <>
@@ -309,9 +321,11 @@ const PurchaseOrder = () => {
                                                 ref={(input) => (tableRefs.current[rowIndex * 2 + 0] = input)}
                                                 className="w-full outline-0 focus:bg-amber-300 pl-1"
                                                 name="description"
-                                                value={item.description}
+                                                defaultValue={item.description}
+                                                //value={item.description}
                                                 onKeyDown={(e) => {
                                                     if (e.key === 'Enter') {
+                                                        setSelectedItem( item.description);
                                                         setShowSubForm(true)
                                                     }
                                                 }}
@@ -319,8 +333,9 @@ const PurchaseOrder = () => {
                                                     setShowProduct(true);
                                                     setFocusedRow(rowIndex);
                                                 }}
+                                                readOnly={vchstatus === 'Approved'}
+                                                autoComplete="off"
                                                 // onBlur={() => setShowProduct(false)}
-                                                readOnly
                                             />
                                         </td>
                                         <td className="pl-1 border border-slate-300 bg-white">
@@ -335,7 +350,12 @@ const PurchaseOrder = () => {
                                             {item.dueOn}
                                         </td>
                                         <td className="border border-slate-300 bg-white text-right pr-1">
-                                            {item.quantity}
+                                              <input
+                                                className="w-full outline-0 text-right focus:bg-amber-300 pr-1"
+                                                type="text"
+                                                name="Quantity"
+                                                defaultValue={item.quantity}
+                                             />
                                         </td>
                                         <td className="text-center border border-slate-300 bg-white">
                                             {item.uom}
@@ -365,17 +385,18 @@ const PurchaseOrder = () => {
                             </tbody>
                         </table>
 
-                        {showSubForm && (
-                            <VoucherSub
-                                isClose={setShowSubForm}
-                                selectionItem={selectionItem}
-                                orderData={tableData}
-                                setOrderData={setTableData}
-                                allocation={tableData[focusedRow].allocation}
-                                row={focusedRow}
-                                afterAllocation={afterAllocation}
-                            />
-                        )}
+                            {showSubForm && (
+                                    <VoucherSub
+                                        isClose={setShowSubForm}
+                                        selectionItem={selectedItem}
+                                        orderData={tableData}
+                                        setOrderData={setTableData}
+                                        allocation={tableData[focusedRow].allocation}
+                                        row={focusedRow}
+                                        afterAllocation={afterAllocation}
+                                        approve={vchstatus}
+                                    />
+                            )}
                     </div>
                     <div className="w-full flex mb-0.5">
                         <div className="border-y border-slate-400 h-5.5 w-117.5 flex items-center justify-between ml-222.5">
@@ -389,18 +410,23 @@ const PurchaseOrder = () => {
                     </div>
 
                     {/* Footer Component */}
-                    <Footer
+                                    <Footer
                         narration={narration}
                         setNarration={setNarration}
                         inputRefs={inputRefs}
                         setInputRef={setInputRef}
-                        handleFormSubmit={handleFormSubmit}
                         createdBy={createdBy}
                         setCreatedBy={setCreatedBy}
                         approvedBy={approvedBy}
                         setApprovedBy={setApprovedBy}
                         navigate={navigate}
-                    />
+                        id={id}
+                        token={token}
+                        tableData={tableData}
+                        headerData={headerData}
+                        totalAmount={totalAmount}
+                        approve={vchstatus}
+                     />
                 </form>
             </div>
         </>
