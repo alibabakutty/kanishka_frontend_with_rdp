@@ -273,35 +273,26 @@ const DayBook = () => {
               </tr>
             ))}
           </tbody >
+          <tfoot className="sticky bottom-0 bg-white z-10">
+            <tr>
+              {/* Empty cells before Party Ledger Name */}
+              <td colSpan={5} className="border border-gray-400"></td>
 
-          {/* ✅ The Continuous Vertical Grid Footer */}
-          {/* <tfoot className="sticky bottom-0 bg-white border-t-2 border-gray-400">
-          
-            <tr className="h-[380px]"> 
-              <td className="border-l border-gray-300"></td>
-              <td className="border-l border-gray-300"></td>
-              <td className="border-l border-gray-300"></td>
-              <td className="border-l border-gray-300"></td>
-              <td className="border-l border-gray-300"></td>
-              <td className="border-l border-gray-300"></td>
-              <td className="border-l border-gray-300"></td>
-              <td className="border-l border-gray-300"></td>
-              <td className="border-l border-gray-300"></td>
-              <td className="border-l border-r border-gray-300"></td>
+              {/* Party Ledger Name column */}
+              <td className="border border-gray-400 font-semibold text-right pr-2">
+                Gross Total :
+              </td>
+
+              {/* PO Amount column */}
+              <td className="border border-gray-400 font-semibold text-right pr-2">
+                {formatINR(grossTotal)}
+              </td>
+
+              {/* Remaining columns */}
+              <td colSpan={3} className="border border-gray-400"></td>
             </tr>
-          </tfoot> */}
+          </tfoot>
         </table>
-      </div>
-
-      {/* 🔥 Sticky Bottom Footer */}
-      <div className="border border-gray-400 text-black px-1 py-1 flex justify-between items-center sticky bottom-0">
-
-        <div className="font-semibold text-sm">
-          Gross Total :
-          <span className='ml-[795px]'>
-            {formatINR(grossTotal)}
-          </span>
-        </div>
       </div>
     </div>
   );
