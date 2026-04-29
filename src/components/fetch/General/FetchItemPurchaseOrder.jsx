@@ -291,7 +291,7 @@ const FetchItemPurchaseOrder = () => {
                             <th className="border border-gray-400 w-28 ">PO Amount</th>
                             <th className="border border-gray-400 w-100">Item Name</th>
                             <th className="border border-gray-400 w-20">HSN</th>
-                            <th className="border border-gray-400 w-12">GST %</th>
+                            <th className="border border-gray-400 w-16">GST %</th>
                             <th className="border border-gray-400 w-12">Qty</th>
                             <th className="border border-gray-400 w-28 ">Rate</th>
                             <th className="border border-gray-400 w-12">UOM</th>

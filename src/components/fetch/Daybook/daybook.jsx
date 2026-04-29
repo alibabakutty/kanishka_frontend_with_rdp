@@ -12,19 +12,40 @@ const DayBook = () => {
   const [focusedCol, setFocusedCol] = useState(0);
   const totalColumns = 10;
   const API_URL = import.meta.env.VITE_API_URL;
-  const username=localStorage.getItem('username');
+  const username = localStorage.getItem('username');
   // filter logic
   const filteredOrders = orders.filter((order) => {
-      const search = searchTerm.toLowerCase();
+    const search = searchTerm.toLowerCase();
     return (
       order.orderNo?.toLowerCase().includes(search) ||
       order.voucherDate?.toLowerCase().includes(search) ||
       order.partyLedgerName?.toLowerCase().includes(search) ||
       order.voucherType?.toLowerCase().includes(search) ||
-      order.totalAmount?.toString().includes(search)   ||
-        order.companyName?.toLowerCase().includes(search)     // converts number to string for searching
+      order.totalAmount?.toString().includes(search) ||
+      order.companyName?.toLowerCase().includes(search)     // converts number to string for searching
     );
   });
+  const [dynamicRows, setDynamicRows] = useState(0);
+  const emptyRowsCount = Math.max(0, dynamicRows - filteredOrders.length);
+  const containerRef = React.useRef(null);
+  const rowRef = React.useRef(null);
+
+  useEffect(() => {
+    const calculateRows = () => {
+      if (!containerRef.current || !rowRef.current) return;
+
+      const containerHeight = containerRef.current.clientHeight;
+      const rowHeight = rowRef.current.clientHeight;
+
+      const visibleRows = Math.floor(containerHeight / rowHeight);
+      setDynamicRows(visibleRows);
+    };
+
+    calculateRows();
+    window.addEventListener('resize', calculateRows);
+
+    return () => window.removeEventListener('resize', calculateRows);
+  }, [filteredOrders]);
 
   useEffect(() => {
     setFocusedIndex(0);
@@ -100,7 +121,7 @@ const DayBook = () => {
         }
 
         const data = await response.json();
-         setOrders(data);
+        setOrders(data);
       } catch (err) {
         setError(err.message)
       } finally {
@@ -162,16 +183,16 @@ const DayBook = () => {
       </div>
 
       {/* Table Section */}
-      <div className="flex-1 overflow-auto">
-        <table className="w-full border-collapse border border-gray-300 min-w-[1500px]">
+      <div ref={containerRef} className="flex-1 overflow-auto">
+        <table className="w-full min-w-[1600px] border border-gray-300" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
           <thead className="sticky top-0 [&_th]:py-0.5 [&_th]:px-0.5">
             <tr className="bg-[#004d26] text-white text-left  text-[12px]">
               <th className="border border-gray-400 text-center w-12">S. No</th>
-              <th className="border border-gray-400 text-center w-52">Voucher Type</th>
+              <th className="border border-gray-400 text-center w-60">Voucher Type</th>
               <th className="border border-gray-400 text-center w-36">Voucher No</th>
               <th className="border border-gray-400 text-center w-36">PO No</th>
               <th className="border border-gray-400 text-center w-28">PO Date</th>
-              <th className="border border-gray-400 text-center w-72">Party Ledger Name</th>
+              <th className="border border-gray-400 text-center w-92">Party Ledger Name</th>
               <th className="border border-gray-400 text-right w-40">PO Amount</th>
               <th className="border border-gray-400 text-right pr-2 w-24">Created By</th>
               <th className="border border-gray-400 text-right pr-2 w-36">Approved Status</th>
@@ -179,7 +200,8 @@ const DayBook = () => {
             </tr>
           </thead>
 
-          <tbody className="sticky top-0 text-[12px] [&_th]:py-0.5 [&_th]:px-0.5" >
+
+          <tbody className="text-[12px] [&_th]:py-0.5 [&_th]:px-0.5">
             {filteredOrders.length > 0 ? (
               filteredOrders.map((order, rowIndex) => {
                 const rowData = [
@@ -194,9 +216,11 @@ const DayBook = () => {
                   order.approvedBy,
                   order.companyName
                 ];
+                const isFirstRow = rowIndex === 0;
 
                 return (
                   <tr
+                    ref={isFirstRow ? rowRef : null}
                     key={order.id}
                     onClick={() => navigate(`/update_purchase_order/${order.id}`)}
                     className="cursor-pointer"
@@ -206,8 +230,7 @@ const DayBook = () => {
                         key={colIndex}
                         data-row={rowIndex}
                         data-col={colIndex}
-                        className={` border border-gray-300
-                    px-1 py-0.5 font-semibold
+                        className={`px-1 py-0.5 font-semibold
                     ${focusedIndex === rowIndex && focusedCol === colIndex
                             ? 'bg-yellow-200 border-2 border-black'
                             : focusedIndex === rowIndex
@@ -221,8 +244,7 @@ const DayBook = () => {
                             : colIndex === 6 || colIndex === 7 || colIndex === 8
                               ? 'text-right pr-2'
                               : 'text-left pl-2'
-                          }
-                  border border-gray-300`}
+                          } border-[0.5px] border-gray-300`}
                       >
                         {cell}
                       </td>
@@ -237,12 +259,42 @@ const DayBook = () => {
                 </td>
               </tr>
             )}
+            {/* Empty Rows */}
+            {[...Array(emptyRowsCount)].map((_, i) => (
+              <tr key={`empty-${i}`}>
+                {Array(10).fill("").map((_, colIndex) => (
+                  <td
+                    key={colIndex}
+                    className="border-[0.5px] border-gray-300 py-[1.7px]"
+                  >
+                    &nbsp;
+                  </td>
+                ))}
+              </tr>
+            ))}
           </tbody >
+
+          {/* ✅ The Continuous Vertical Grid Footer */}
+          {/* <tfoot className="sticky bottom-0 bg-white border-t-2 border-gray-400">
+          
+            <tr className="h-[380px]"> 
+              <td className="border-l border-gray-300"></td>
+              <td className="border-l border-gray-300"></td>
+              <td className="border-l border-gray-300"></td>
+              <td className="border-l border-gray-300"></td>
+              <td className="border-l border-gray-300"></td>
+              <td className="border-l border-gray-300"></td>
+              <td className="border-l border-gray-300"></td>
+              <td className="border-l border-gray-300"></td>
+              <td className="border-l border-gray-300"></td>
+              <td className="border-l border-r border-gray-300"></td>
+            </tr>
+          </tfoot> */}
         </table>
       </div>
 
       {/* 🔥 Sticky Bottom Footer */}
-     <div className="border border-gray-400 text-black px-1 py-1 flex justify-between items-center sticky bottom-0">
+      <div className="border border-gray-400 text-black px-1 py-1 flex justify-between items-center sticky bottom-0">
 
         <div className="font-semibold text-sm">
           Gross Total :
@@ -250,7 +302,6 @@ const DayBook = () => {
             {formatINR(grossTotal)}
           </span>
         </div>
-
       </div>
     </div>
   );
