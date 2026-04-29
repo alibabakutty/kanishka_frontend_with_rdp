@@ -265,7 +265,7 @@ const DayBook = () => {
                 {Array(10).fill("").map((_, colIndex) => (
                   <td
                     key={colIndex}
-                    className="border-[0.5px] border-gray-300 py-[1.7px]"
+                    className="border-[0.5px] border-gray-300 py-[1.5px]"
                   >
                     &nbsp;
                   </td>
