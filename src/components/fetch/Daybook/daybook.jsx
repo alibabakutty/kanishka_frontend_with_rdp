@@ -175,7 +175,7 @@ const DayBook = () => {
               <th className="border border-gray-400 text-right w-40">PO Amount</th>
               <th className="border border-gray-400 text-right pr-2 w-24">Created By</th>
               <th className="border border-gray-400 text-right pr-2 w-36">Approved Status</th>
-              <th className="border border-gray-400 text-center pr-2 w-92">Company Name</th>
+              <th className="border border-gray-400 text-center pr-2 w-104">Company Name</th>
             </tr>
           </thead>
 
@@ -199,14 +199,14 @@ const DayBook = () => {
                   <tr
                     key={order.id}
                     onClick={() => navigate(`/update_purchase_order/${order.id}`)}
-                    className="cursor-pointer border border-gray-300"
+                    className="cursor-pointer"
                   >
                     {rowData.map((cell, colIndex) => (
                       <td
                         key={colIndex}
                         data-row={rowIndex}
                         data-col={colIndex}
-                        className={`
+                        className={` border border-gray-300
                     px-1 py-0.5 font-semibold
                     ${focusedIndex === rowIndex && focusedCol === colIndex
                             ? 'bg-yellow-200 border-2 border-black'

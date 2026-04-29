@@ -296,7 +296,7 @@ const FetchMaterialItem = () => {
                             <th className="border border-gray-400 w-12">Qty</th>
                             <th className="border border-gray-400 w-28 text-right pr-5">Rate</th>
                             <th className="border border-gray-400 w-12">UOM</th>
-                            <th className="border border-gray-400 w-24">Amount</th>
+                            <th className="border border-gray-400 w-36">Amount</th>
                             <th className="border border-gray-400 w-20">Created By</th>
                             <th className="border border-gray-400 w-40">Approved Status</th>
                             <th className="border border-gray-400 w-90">Company Name</th>

@@ -173,19 +173,19 @@ const MaterialPo = () => {
 
       {/* Table Section */}
       <div className="flex-1 overflow-auto">
-        <table className="w-full border-collapse border border-gray-300">
+        <table className="w-full border-collapse border border-gray-300 min-w-[1500px]">
           <thead className="bg-[#004d26] text-white text-left [&_th]:px-[0.5] [&_th]:py-1 [&_th]:border [&_th]:border-gray-500">
             <tr className="bg-[#004d26] text-white text-left  ">
-              <th className="border border-gray-400 text-center">S. No</th>
-              <th className="border border-gray-400 text-center">Voucher Type</th>
-              <th className="border border-gray-400 text-center">Voucher No</th>
-              <th className="border border-gray-400 text-center">PO No</th>
-              <th className="border border-gray-400 text-center">PO Date</th>
-              <th className="border border-gray-400 text-center">Party Ledger Name</th>
-              <th className="border border-gray-400 text-right pr-2">PO Amount</th>
-              <th className="border border-gray-400 text-right pr-2">Created By</th>
-              <th className="border border-gray-400 text-right pr-2">Approved Status</th>
-              <th className="border border-gray-400 text-center pr-2">Company Name</th>
+              <th className="border border-gray-400 text-center w-12">S. No</th>
+              <th className="border border-gray-400 text-center w-52">Voucher Type</th>
+              <th className="border border-gray-400 text-center w-36">Voucher No</th>
+              <th className="border border-gray-400 text-center w-36">PO No</th>
+              <th className="border border-gray-400 text-center w-28">PO Date</th>
+              <th className="border border-gray-400 text-center w-72">Party Ledger Name</th>
+              <th className="border border-gray-400 text-right pr-2 w-40">PO Amount</th>
+              <th className="border border-gray-400 text-right pr-2 w-24">Created By</th>
+              <th className="border border-gray-400 text-right pr-2 w-36">Approved Status</th>
+              <th className="border border-gray-400 text-center pr-2 w-104">Company Name</th>
             </tr>
           </thead>
 

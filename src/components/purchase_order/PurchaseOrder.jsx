@@ -319,7 +319,7 @@ const PurchaseOrder = () => {
                                             <input
                                                 type="text"
                                                 ref={(input) => (tableRefs.current[rowIndex * 2 + 0] = input)}
-                                                className="w-full outline-0 focus:bg-amber-300 pl-1"
+                                                className="w-full outline-0 focus:bg-amber-300 pl-1 capitalize"
                                                 name="description"
                                                 defaultValue={item.description}
                                                 //value={item.description}
