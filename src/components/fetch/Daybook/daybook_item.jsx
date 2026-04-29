@@ -8,7 +8,7 @@ const FetchDbItemwise = () => {
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [focusedIndex, setFocusedIndex] = useState(0);
-    const username=localStorage.getItem('username');
+    const username = localStorage.getItem('username');
     const [filters, setFilters] = useState({
         voucherType: '',
         voucherNumber: '',
@@ -25,7 +25,7 @@ const FetchDbItemwise = () => {
         itemAmount: '',
         createdBy: '',
         approvedBy: '',
-        companyname:''
+        companyname: ''
     });
 
     const navigate = useNavigate();
@@ -34,6 +34,7 @@ const FetchDbItemwise = () => {
     const totalColumns = 17;
     let lastOrderId = null;
     const API_URL = import.meta.env.VITE_API_URL;
+
 
     // Flatten inventory entries
     const flattenedOrders = useMemo(() => {
@@ -47,7 +48,7 @@ const FetchDbItemwise = () => {
                 billedQty: item.billedQty,
                 itemRate: item.itemRate,
                 itemAmount: item.itemAmount,
-                companyname:item.companyName
+                companyname: item.companyName
             }))
         );
     }, [orders]);
@@ -78,12 +79,31 @@ const FetchDbItemwise = () => {
                 (!filters.uom || order.itemUom?.toLowerCase().includes(filters.uom.toLowerCase())) &&
                 (!filters.itemAmount || Math.abs(order.itemAmount)?.toString().includes(filters.itemAmount)) &&
                 (!filters.createdBy || order.createdBy?.toLowerCase().includes(filters.createdBy.toLowerCase())) &&
-                (!filters.approvedBy || order.approvedBy?.toLowerCase().includes(filters.approvedBy.toLowerCase()))&&
+                (!filters.approvedBy || order.approvedBy?.toLowerCase().includes(filters.approvedBy.toLowerCase())) &&
                 (!filters.companyname || order.companyName?.toLowerCase().includes(filters.companyname.toLowerCase()));
 
             return globalMatch && columnMatch;
         });
     }, [flattenedOrders, searchTerm, filters]);
+    const [dynamicRows, setDynamicRows] = useState(0);
+    const emptyRowsCount = Math.max(0, dynamicRows - filteredOrders.length);
+    const containerRef = React.useRef(null);
+    const rowRef = React.useRef(null);
+
+    useEffect(() => {
+        const calculateRows = () => {
+            if (!containerRef.current || !rowRef.current) return;
+
+            const containerHeight = containerRef.current.clientHeight;
+            const rowHeight = rowRef.current.clientHeight;
+
+            const visibleRows = Math.floor(containerHeight / rowHeight);
+            setDynamicRows(visibleRows);
+        }
+        calculateRows();
+        window.addEventListener('resize', calculateRows);
+        return () => window.removeEventListener('resize', calculateRows);
+    }, [filteredOrders]);
 
     useEffect(() => {
         setFocusedIndex(0);
@@ -107,14 +127,14 @@ const FetchDbItemwise = () => {
                     );
                     break;
                 }
-                    
+
 
                 case 'ArrowUp': {
                     e.preventDefault();
                     setFocusedIndex((prev) => (prev > 0 ? prev - 1 : 0));
                     break;
                 }
-                    
+
 
                 case 'ArrowRight': {
                     e.preventDefault();
@@ -123,14 +143,14 @@ const FetchDbItemwise = () => {
                     );
                     break;
                 }
-                    
+
 
                 case 'ArrowLeft': {
                     e.preventDefault();
                     setFocusedCol((prev) => (prev > 0 ? prev - 1 : 0));
                     break;
                 }
-                    
+
 
                 case 'Enter': {
                     const selected = filteredOrders[focusedIndex];
@@ -139,7 +159,7 @@ const FetchDbItemwise = () => {
                     }
                     break;
                 }
-                    
+
 
                 default:
                     break;
@@ -213,8 +233,6 @@ const FetchDbItemwise = () => {
         });
     }, [focusedIndex, focusedCol]);
 
-
-
     if (loading) return <div className="p-4 text-center">Loading orders...</div>;
     if (error) return <div className="p-4 text-red-500 text-center">Error: {error}</div>;
 
@@ -256,7 +274,7 @@ const FetchDbItemwise = () => {
                                     itemAmount: '',
                                     createdBy: '',
                                     approvedBy: '',
-                                    companyname:''
+                                    companyname: ''
                                 });
                             }
                             return !prev;
@@ -322,77 +340,94 @@ const FetchDbItemwise = () => {
                     </thead>
 
                     <tbody className='text-[12px] [&_th]:py-0.5 [&_th]:px-0.5'>
-                        {filteredOrders.map((order, rowIndex) => {
-                            const isSameOrder = lastOrderId === order.id;
-                            lastOrderId = order.id;
+                        {filteredOrders.length > 0 ? (
+                            filteredOrders.map((order, rowIndex) => {
+                                const isSameOrder = lastOrderId === order.id;
+                                lastOrderId = order.id;
 
-                            const rowData = [
-                                rowIndex + 1,
-                                order.voucherType,
-                                order.voucherNumber,
-                                order.orderNo,
-                                formatDate(order.voucherDate),
-                                order.partyLedgerName,
-                                isSameOrder ? '' : formatINR(order.totalAmount),
-                                order.itemName,
-                                order.hsnCode,
-                                `${order.gstPercentage ? `${order.gstPercentage}%` : ''}`,
-                                order.billedQty.toFixed(2),
-                                formatINR(order.itemRate),
-                                order.itemUom,
-                                formatINR(Math.abs(order.itemAmount)),
-                                order.createdBy,
-                                order.approvedBy,
-                                order.companyname
-                            ];
+                                const rowData = [
+                                    rowIndex + 1,
+                                    order.voucherType,
+                                    order.voucherNumber,
+                                    order.orderNo,
+                                    formatDate(order.voucherDate),
+                                    order.partyLedgerName,
+                                    isSameOrder ? '' : formatINR(order.totalAmount),
+                                    order.itemName,
+                                    order.hsnCode,
+                                    `${order.gstPercentage ? `${order.gstPercentage}%` : ''}`,
+                                    order.billedQty.toFixed(2),
+                                    formatINR(order.itemRate),
+                                    order.itemUom,
+                                    formatINR(Math.abs(order.itemAmount)),
+                                    order.createdBy,
+                                    order.approvedBy,
+                                    order.companyname
+                                ];
 
-                            return (
-                                <tr
-                                    key={rowIndex}
-                                    onClick={() =>
-                                        navigate(`/update_purchase_order/${order.id}`)
-                                    }
-                                    className="cursor-pointer font-semibold"
-                                >
-                                    {rowData.map((cell, colIndex) => (
-                                        <td
-                                            // key={colIndex}
-                                            data-row={rowIndex}
-                                            data-col={colIndex}
-                                            className={`
+                                return (
+                                    <tr
+                                        key={rowIndex}
+                                        onClick={() =>
+                                            navigate(`/update_purchase_order/${order.id}`)
+                                        }
+                                        className="cursor-pointer font-semibold"
+                                    >
+                                        {rowData.map((cell, colIndex) => (
+                                            <td
+                                                // key={colIndex}
+                                                data-row={rowIndex}
+                                                data-col={colIndex}
+                                                className={`
                             border border-gray-300 px-1
                             ${focusedIndex === rowIndex && focusedCol === colIndex
-                                                    ? 'bg-yellow-200 border border-black'
-                                                    : focusedIndex === rowIndex
-                                                        ? 'bg-yellow-100'
-                                                        : rowIndex % 2 === 0
-                                                            ? 'bg-yellow-50'
-                                                            : ''
-                                                }
-                            ${colIndex === 0 || colIndex === 1 || 
-                                colIndex === 2 || colIndex === 3 ||
-                                 colIndex === 4 || colIndex === 5 || 
-                                  colIndex === 7 || colIndex === 8 || 
-                                   colIndex === 9 || colIndex === 12 || colIndex === 16  || colIndex === 17
-                                                    ? 'text-left pl-1 '
-                                                    : 'text-right'
-                                                }
+                                                        ? 'bg-yellow-200 border border-black'
+                                                        : focusedIndex === rowIndex
+                                                            ? 'bg-yellow-100'
+                                                            : rowIndex % 2 === 0
+                                                                ? 'bg-yellow-50'
+                                                                : ''
+                                                    }
+                            ${colIndex === 0 || colIndex === 1 ||
+                                                        colIndex === 2 || colIndex === 3 ||
+                                                        colIndex === 4 || colIndex === 5 ||
+                                                        colIndex === 7 || colIndex === 8 ||
+                                                        colIndex === 9 || colIndex === 12 || colIndex === 16 || colIndex === 17
+                                                        ? 'text-left pl-1 '
+                                                        : 'text-right'
+                                                    }
                         `}
-                                        >
-                                            {cell}
-                                        </td>
-                                    ))}
-                                </tr>
-                            );
-                        })}
+                                            >
+                                                {cell}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                );
+                            })
+                        ) : (
+                            <tr>
+                                <td colSpan="10" className="text-center py-4 text-gray-500">
+                                    No matching records found
+                                </td>
+                            </tr>
+                        )}
+                        {/* Empty rows to maintain table height */}
+                        {[...Array(emptyRowsCount)].map((_, i) => (
+                            <tr key={`empty-${i}`}>
+                                {Array(10).fill("").map((_, colIndex) => (
+                                    <td key={colIndex} className='border-[0.5px] border-gray-300 py-[1.5px]'>
+                                        $nbsp;
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
                     </tbody>
-    
-                    
+                    <tfoot></tfoot>
                 </table>
             </div>
-            
+
             {/* 🔥 Sticky Bottom Footer */}
-             <div className="border border-gray-400 text-black px-1 py-1 sticky bottom-0">
+            <div className="border border-gray-400 text-black px-1 py-1 sticky bottom-0">
 
                 <div className="flex items-center">
 
@@ -413,13 +448,9 @@ const FetchDbItemwise = () => {
                     <div className="text-right font-bold ml-30">
                         {isFilterApplied ? formatINR(Math.abs(totals.amount)) : ''}
                     </div>
-
                     <div className="col-span-2"></div>
-
                 </div>
-
             </div>
-           
         </div>
     );
 };
