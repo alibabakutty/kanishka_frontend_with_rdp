@@ -18,7 +18,7 @@ const MaterialPo = () => {
   const [focusedCol, setFocusedCol] = useState(0);
   const totalColumns = 10;
   const API_URL = import.meta.env.VITE_API_URL;
-    const username=localStorage.getItem('username');
+  const username = localStorage.getItem('username');
 
   // filter logic
   const filteredOrders = orders.filter((order) => {
@@ -28,10 +28,29 @@ const MaterialPo = () => {
       order.voucherDate?.toLowerCase().includes(search) ||
       order.partyLedgerName?.toLowerCase().includes(search) ||
       order.voucherType?.toLowerCase().includes(search) ||
-      order.totalAmount?.toString().includes(search)  ||
-        order.companyName?.toLowerCase().includes(search)      // converts number to string for searching
+      order.totalAmount?.toString().includes(search) ||
+      order.companyName?.toLowerCase().includes(search)      // converts number to string for searching
     );
   });
+  const [dynamicRows, setDynamicRows] = useState(0);
+  const emptyRowsCount = Math.max(0, dynamicRows - filteredOrders.length);
+  const containerRef = useRef(null);
+  const rowRef = useRef(null);
+
+  useEffect(() => {
+    const calculateRows = () => {
+      if (!containerRef.current || !rowRef.current) return;
+
+      const containerHeight = containerRef.current.clientHeight;
+      const rowHeight = rowRef.current.clientHeight;
+
+      const visibleRows = Math.floor(containerHeight / rowHeight);
+      setDynamicRows(visibleRows);
+    }
+    calculateRows();
+    window.addEventListener('resize', calculateRows);
+    return () => window.removeEventListener('resize', calculateRows);
+  }, [filteredOrders]);
 
   useEffect(() => {
     setFocusedIndex(0);
@@ -107,7 +126,7 @@ const MaterialPo = () => {
         }
 
         const data = await response.json();
-         setOrders(data);
+        setOrders(data);
       } catch (err) {
         setError(err.message)
       } finally {
@@ -143,9 +162,7 @@ const MaterialPo = () => {
         <h1 className="text-sm font-bold tracking-tight">PURCHASE ORDER - MATERIAL</h1>
 
         <div className="flex items-center gap-6">
-          {/* <button className="bg-[#e63946] px-4 py-1 rounded flex items-center gap-2 font-semibold uppercase text-xs">
-            <span className="bg-white text-[#e63946] rounded-sm px-0.5">■</span> ADMINISTRATOR
-          </button> */}
+
           <div className="text-sm">
             <span className="font-bold">{username}</span> | <button className="hover:underline">Logout</button>
           </div>
@@ -172,7 +189,7 @@ const MaterialPo = () => {
       </div>
 
       {/* Table Section */}
-      <div className="flex-1 overflow-auto">
+      <div ref={containerRef} className="flex-1 overflow-auto">
         <table className="w-full border-collapse border border-gray-300 min-w-[1500px]">
           <thead className="bg-[#004d26] text-white text-left [&_th]:px-[0.5] [&_th]:py-1 [&_th]:border [&_th]:border-gray-500">
             <tr className="bg-[#004d26] text-white text-left  ">
@@ -189,7 +206,7 @@ const MaterialPo = () => {
             </tr>
           </thead>
 
-          <tbody  className="[&_th]:px-1 [&_th]:py-1 [&_th]:border [&_th]:border-gray-500">
+          <tbody className="[&_th]:px-1 [&_th]:py-1 [&_th]:border [&_th]:border-gray-500">
             {filteredOrders.length > 0 ? (
               filteredOrders.map((order, rowIndex) => {
                 const rowData = [
@@ -204,9 +221,10 @@ const MaterialPo = () => {
                   order.approvedBy,
                   order.companyName
                 ];
-
+                const isFirstRow = rowIndex === 0;
                 return (
                   <tr
+                    ref={isFirstRow ? rowRef : null}
                     key={order.id}
                     onClick={() => navigate(`/update_purchase_order/${order.id}`)}
                     className="cursor-pointer"
@@ -247,36 +265,40 @@ const MaterialPo = () => {
                 </td>
               </tr>
             )}
+            {/* Empty Rows */}
+            {[...Array(emptyRowsCount)].map((_, i) => (
+              <tr key={`empty-${i}`}>
+                {Array(10).fill("").map((_, colIndex) => (
+                  <td
+                    key={colIndex}
+                    className="border-[0.5px] border-gray-300 py-[1.5px]"
+                  >
+                    &nbsp;
+                  </td>
+                ))}
+              </tr>
+            ))}
           </tbody>
-         {/* {grossTotal !=0 &&(
-          <tfoot >
-            <tr className="bg-[#003366] text-white px-4 py-2  justify-between items-center sticky bottom-0">
-              <th className="border border-gray-400 text-center"></th>
-              <th className="border border-gray-400 text-center"></th>
-              <th className="border border-gray-400 text-center text-[13px]">Grand Total</th>
-              <th className="border border-gray-400 text-center"></th>
-              <th className="border border-gray-400 text-center"></th>
-              <th className="border border-gray-400 text-center"></th>
-              <th className="border border-gray-400 text-right pr-2 text-[13px]">{formatINR(grossTotal)}</th>
-              <th className="border border-gray-400 text-right pr-2"></th>
-              <th className="border border-gray-400 text-right pr-2"></th>
-              <th className="border border-gray-400 text-center pr-2"></th>
+          <tfoot className="sticky bottom-0 bg-white z-10">
+            <tr>
+              {/* Empty cells before Party Ledger Name */}
+              <td colSpan={5} className="border border-gray-400"></td>
+
+              {/* Party Ledger Name column */}
+              <td className="border border-gray-400 font-semibold text-right pr-2">
+                Gross Total :
+              </td>
+
+              {/* PO Amount column */}
+              <td className="border border-gray-400 font-semibold text-right pr-2">
+                {formatINR(grossTotal)}
+              </td>
+
+              {/* Remaining columns */}
+              <td colSpan={3} className="border border-gray-400"></td>
             </tr>
           </tfoot>
-          )}*/}
         </table>
-      </div>
-
-      {/* 🔥 Sticky Bottom Footer */}
-     <div className="border border-gray-400 text-black px-1 py-1 flex justify-between items-center sticky bottom-0">
-
-        <div className="font-semibold text-sm">
-          Gross Total :
-          <span className='ml-170'>
-            {formatINR(grossTotal)}
-          </span>
-        </div>
-
       </div>
     </div>
   );

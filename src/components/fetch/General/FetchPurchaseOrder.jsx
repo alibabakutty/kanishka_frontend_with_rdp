@@ -13,7 +13,6 @@ const FetchPurchaseOrder = () => {
   const totalColumns = 10;
   const API_URL = import.meta.env.VITE_API_URL;
   const username = localStorage.getItem('username');
-
   // filter logic
   const filteredOrders = orders.filter((order) => {
     const search = searchTerm.toLowerCase();
@@ -27,6 +26,25 @@ const FetchPurchaseOrder = () => {
       order.companyName?.toLowerCase().includes(search)       // converts number to string for searching
     );
   });
+  const [dynamicRows, setDynamicRows] = useState(0);
+  const emptyRowsCount = Math.max(0, dynamicRows - filteredOrders.length);
+  const containerRef = React.useRef(null);
+  const rowRef = React.useRef(null);
+
+  useEffect(() => {
+    const calculatedRows = () => {
+      if (!containerRef.current || !rowRef.current) return;
+    
+      const containerHeight = containerRef.current.clientHeight;
+      const rowHeight = rowRef.current.clientHeight;
+
+      const visibleRows = Math.floor(containerHeight / rowHeight);
+      setDynamicRows(visibleRows);
+    }
+    calculatedRows();
+    window.addEventListener('resize', calculatedRows);
+    return () => window.removeEventListener('resize', calculatedRows);
+  }, [filteredOrders]);
 
   useEffect(() => {
     setFocusedIndex(0);
@@ -167,7 +185,7 @@ const FetchPurchaseOrder = () => {
       </div>
 
       {/* Table Section */}
-      <div className="flex-1 overflow-auto">
+      <div ref={containerRef} className="flex-1 overflow-auto">
         <table className="w-full border-collapse border border-gray-300">
          <thead className="bg-[#004d26] text-white text-left [&_th]:px-[0.5] [&_th]:py-1 [&_th]:border [&_th]:border-gray-500">
           <tr>
@@ -199,9 +217,10 @@ const FetchPurchaseOrder = () => {
                   order.approvedBy,
                   order.companyName
                 ];
-
+                const isFirstRow = rowIndex === 0;
                 return (
                   <tr
+                    ref={isFirstRow ? rowRef : null}
                     key={order.id}
                     onClick={() => navigate(`/update_purchase_order/${order.id}`)}
                     className="cursor-pointer"
@@ -242,36 +261,40 @@ const FetchPurchaseOrder = () => {
                 </td>
               </tr>
             )}
+            {/* Empty rows */}
+            {[...Array(emptyRowsCount)].map((_, i) => (
+              <tr key={`empty-${i}`}>
+                {Array(10).fill("").map((_, colIndex) => (
+                  <td
+                    key={colIndex}
+                    className="border-[0.5px] border-gray-300 py-[1.5px]"
+                  >
+                    &nbsp;
+                  </td>
+                ))}
+              </tr>
+            ))}
           </tbody>
-         {/* {grossTotal !=0 &&(
-          <tfoot >
-            <tr className="bg-[#003366] text-white px-4 py-2  justify-between items-center sticky bottom-0">
-              <th className="border border-gray-400 text-center"></th>
-              <th className="border border-gray-400 text-center"></th>
-              <th className="border border-gray-400 text-center text-[13px]">Grand Total</th>
-              <th className="border border-gray-400 text-center"></th>
-              <th className="border border-gray-400 text-center"></th>
-              <th className="border border-gray-400 text-center"></th>
-              <th className="border border-gray-400 text-right pr-2 text-[13px]">{formatINR(grossTotal)}</th>
-              <th className="border border-gray-400 text-right pr-2"></th>
-              <th className="border border-gray-400 text-right pr-2"></th>
-              <th className="border border-gray-400 text-center pr-2"></th>
+           <tfoot className="sticky bottom-0 bg-white z-10">
+            <tr>
+              {/* Empty cells before Party Ledger Name */}
+              <td colSpan={5} className="border border-gray-400"></td>
+
+              {/* Party Ledger Name column */}
+              <td className="border border-gray-400 font-semibold text-right pr-2">
+                Gross Total :
+              </td>
+
+              {/* PO Amount column */}
+              <td className="border border-gray-400 font-semibold text-right pr-2">
+                {formatINR(grossTotal)}
+              </td>
+
+              {/* Remaining columns */}
+              <td colSpan={3} className="border border-gray-400"></td>
             </tr>
           </tfoot>
-          )}*/}
         </table>
-      </div>
-
-      {/* 🔥 Sticky Bottom Footer */}
-     <div className=" text-black px-1 py-1 flex justify-between items-center sticky bottom-0 border border-gray-400 ">
-
-        <div className="font-semibold text-[14px] border-solid ">
-          Gross Total :
-          <span className='ml-145'>
-            {formatINR(grossTotal)}
-          </span>
-        </div>
-
       </div>
     </div>
   );

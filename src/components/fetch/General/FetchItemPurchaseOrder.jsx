@@ -25,7 +25,7 @@ const FetchItemPurchaseOrder = () => {
         itemAmount: '',
         createdBy: '',
         approvedBy: '',
-        companyname:''
+        companyname: ''
     });
 
     const navigate = useNavigate();
@@ -47,7 +47,7 @@ const FetchItemPurchaseOrder = () => {
                 billedQty: item.billedQty,
                 itemRate: item.itemRate,
                 itemAmount: item.itemAmount,
-                companyname:item.companyName
+                companyname: item.companyName
             }))
         );
     }, [orders]);
@@ -78,12 +78,34 @@ const FetchItemPurchaseOrder = () => {
                 (!filters.uom || order.itemUom?.toLowerCase().includes(filters.uom.toLowerCase())) &&
                 (!filters.itemAmount || Math.abs(order.itemAmount)?.toString().includes(filters.itemAmount)) &&
                 (!filters.createdBy || order.createdBy?.toLowerCase().includes(filters.createdBy.toLowerCase())) &&
-                (!filters.approvedBy || order.approvedBy?.toLowerCase().includes(filters.approvedBy.toLowerCase()))&&
+                (!filters.approvedBy || order.approvedBy?.toLowerCase().includes(filters.approvedBy.toLowerCase())) &&
                 (!filters.companyname || order.companyName?.toLowerCase().includes(filters.companyName.toLowerCase()));
 
             return globalMatch && columnMatch;
         });
     }, [flattenedOrders, searchTerm, filters]);
+
+    const [dynamicRows, setDynamicRows] = useState(0);
+    const emptyRowsCount = Math.max(0, dynamicRows - filteredOrders.length);
+    const containerRef = React.useRef(null);
+    const rowRef = React.useRef(null);
+
+    useEffect(() => {
+        const calculateRows = () => {
+            if (!containerRef.current || !rowRef.current) return;
+
+            const containerHeight = containerRef.current.clientHeight;
+            const rowHeight = rowRef.current.clientHeight;
+
+            const visibleRows = Math.floor(containerHeight / rowHeight);
+            setDynamicRows(visibleRows);
+        };
+
+        calculateRows();
+        window.addEventListener('resize', calculateRows);
+
+        return () => window.removeEventListener('resize', calculateRows);
+    }, [filteredOrders]);
 
     useEffect(() => {
         setFocusedIndex(0);
@@ -107,14 +129,14 @@ const FetchItemPurchaseOrder = () => {
                     );
                     break;
                 }
-                    
+
 
                 case 'ArrowUp': {
                     e.preventDefault();
                     setFocusedIndex((prev) => (prev > 0 ? prev - 1 : 0));
                     break;
                 }
-                    
+
 
                 case 'ArrowRight': {
                     e.preventDefault();
@@ -123,14 +145,14 @@ const FetchItemPurchaseOrder = () => {
                     );
                     break;
                 }
-                    
+
 
                 case 'ArrowLeft': {
                     e.preventDefault();
                     setFocusedCol((prev) => (prev > 0 ? prev - 1 : 0));
                     break;
                 }
-                    
+
 
                 case 'Enter': {
                     const selected = filteredOrders[focusedIndex];
@@ -139,7 +161,7 @@ const FetchItemPurchaseOrder = () => {
                     }
                     break;
                 }
-                    
+
 
                 default:
                     break;
@@ -256,7 +278,7 @@ const FetchItemPurchaseOrder = () => {
                                     itemAmount: '',
                                     createdBy: '',
                                     approvedBy: '',
-                                    companyname:''
+                                    companyname: ''
                                 });
                             }
                             return !prev;
@@ -277,7 +299,7 @@ const FetchItemPurchaseOrder = () => {
             </div>
 
             {/* ✅ Horizontal Scroll Wrapper */}
-            <div className="flex-1 overflow-auto">
+            <div ref={containerRef} className="flex-1 overflow-auto">
                 <table className=" border-collapse min-w-600 border border-gray-400 ">
                     {/* Sticky Header */}
                     <thead className="sticky top-0 text-[12px] [&_th]:py-0.5 [&_th]:px-0.5">
@@ -322,95 +344,120 @@ const FetchItemPurchaseOrder = () => {
                     </thead>
 
                     <tbody className='text-[12px] [&_th]:py-1 [&_th]:px-1'>
-                        {filteredOrders.map((order, rowIndex) => {
-                            const isSameOrder = lastOrderId === order.id;
-                            lastOrderId = order.id;
+                        {filteredOrders.length > 0 ? (
+                            filteredOrders.map((order, rowIndex) => {
+                                const isSameOrder = lastOrderId === order.id;
+                                lastOrderId = order.id;
 
-                            const rowData = [
-                                rowIndex + 1,
-                                order.voucherType,
-                                order.voucherNumber,
-                                order.orderNo,
-                                formatDate(order.voucherDate),
-                                order.partyLedgerName,
-                                isSameOrder ? '' : formatINR(order.totalAmount),
-                                order.itemName,
-                                order.hsnCode,
-                                `${order.gstPercentage}%`,
-                                order.billedQty.toFixed(2),
-                                formatINR(order.itemRate),
-                                order.itemUom,
-                                formatINR(Math.abs(order.itemAmount)),
-                                order.createdBy,
-                                order.approvedBy,
-                                order.companyname
-                            ];
-
-                            return (
-                                <tr
-                                    key={rowIndex}
-                                    onClick={() =>
-                                        navigate(`/update_purchase_order/${order.id}`)
-                                    }
-                                    className="cursor-pointer font-semibold"
-                                >
-                                    {rowData.map((cell, colIndex) => (
-                                        <td
-                                            // key={colIndex}
-                                            data-row={rowIndex}
-                                            data-col={colIndex}
-                                            className={`
+                                const rowData = [
+                                    rowIndex + 1,
+                                    order.voucherType,
+                                    order.voucherNumber,
+                                    order.orderNo,
+                                    formatDate(order.voucherDate),
+                                    order.partyLedgerName,
+                                    isSameOrder ? '' : formatINR(order.totalAmount),
+                                    order.itemName,
+                                    order.hsnCode,
+                                    `${order.gstPercentage}%`,
+                                    order.billedQty.toFixed(2),
+                                    formatINR(order.itemRate),
+                                    order.itemUom,
+                                    formatINR(Math.abs(order.itemAmount)),
+                                    order.createdBy,
+                                    order.approvedBy,
+                                    order.companyname
+                                ];
+                                const isFirstRow = rowIndex === 0;
+                                return (
+                                    <tr
+                                        ref={isFirstRow ? rowRef : null}
+                                        key={rowIndex}
+                                        onClick={() =>
+                                            navigate(`/update_purchase_order/${order.id}`)
+                                        }
+                                        className="cursor-pointer font-semibold"
+                                    >
+                                        {rowData.map((cell, colIndex) => (
+                                            <td
+                                                // key={colIndex}
+                                                data-row={rowIndex}
+                                                data-col={colIndex}
+                                                className={`
                             border border-gray-300 px-1
                             ${focusedIndex === rowIndex && focusedCol === colIndex
-                                                    ? 'bg-yellow-200 border border-black'
-                                                    : focusedIndex === rowIndex
-                                                        ? 'bg-yellow-100'
-                                                        : rowIndex % 2 === 0
-                                                            ? 'bg-yellow-50'
-                                                            : ''
-                                                }
+                                                        ? 'bg-yellow-200 border border-black'
+                                                        : focusedIndex === rowIndex
+                                                            ? 'bg-yellow-100'
+                                                            : rowIndex % 2 === 0
+                                                                ? 'bg-yellow-50'
+                                                                : ''
+                                                    }
                             ${colIndex === 0 || colIndex === 1 || colIndex === 4 || colIndex === 5 || colIndex === 7 || colIndex === 8 || colIndex === 9 || colIndex === 12
-                                                    ? 'text-left pl-2'
-                                                    : 'text-right'
-                                                }
+                                                        ? 'text-left pl-2'
+                                                        : 'text-right'
+                                                    }
                         `}
-                                        >
-                                            {cell}
-                                        </td>
-                                    ))}
-                                </tr>
-                            );
-                        })}
+                                            >
+                                                {cell}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                );
+                            })
+                        ) : (
+                            <tr>
+                                <td colSpan="10" className="text-center py-4 text-gray-500">
+                                    No matching records found
+                                </td>
+                            </tr>
+                        )}
+                        {/* Empty Rows */}
+                        {[...Array(emptyRowsCount)].map((_, i) => (
+                            <tr key={`empty-${i}`}>
+                                {Array(17).fill("").map((_, colIndex) => (
+                                    <td
+                                        key={colIndex}
+                                        className="border-[0.5px] border-gray-300 py-[1.5px]"
+                                    >
+                                        &nbsp;
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
                     </tbody>
+
+                    <tfoot className="sticky bottom-0 bg-white z-10">
+                        <tr className="bg-gray-100 border-t-2 border-gray-400 text-[12px]">
+                            {/* 1. Span from S.No to PO Amount (7 columns) */}
+                            <td colSpan={7} className="border border-gray-400"></td>
+
+                            {/* 2. Label column (Item Name) - Positioning "Total:" near the values */}
+                            <td className="border border-gray-400 font-bold text-right pr-2">
+                                {isFilterApplied ? 'Total:' : ''}
+                            </td>
+
+                            {/* 3. Empty cells for HSN and GST% (2 columns) */}
+                            <td colSpan={2} className="border border-gray-400"></td>
+
+                            {/* 4. Qty Total (11th column / index 10) */}
+                            <td className="border border-gray-400 font-bold text-right pr-1 bg-yellow-50">
+                                {isFilterApplied ? totals.qty.toFixed(2) : ''}
+                            </td>
+
+                            {/* 5. Empty cells for Rate and UOM (2 columns) */}
+                            <td colSpan={2} className="border border-gray-400"></td>
+
+                            {/* 6. Item Amount Total (14th column / index 13) */}
+                            <td className="border border-gray-400 font-bold text-right pr-1 bg-yellow-50">
+                                {isFilterApplied ? formatINR(Math.abs(totals.amount)) : ''}
+                            </td>
+
+                            {/* 7. Remaining columns (Created By, Status, Company Name - 3 columns) */}
+                            <td colSpan={3} className="border border-gray-400"></td>
+                        </tr>
+                    </tfoot>
                 </table>
-            </div>
-            {/* 🔥 Sticky Bottom Footer */}
-            <div className=" text-black px-1 py-1 flex justify-between items-center sticky bottom-0 border border-gray-400 ">
-
-                <div className="flex items-center">
-
-                    {/* Empty space */}
-                    <div className=" text-right font-semibold">
-                        Total:
-                    </div>
-
-                    {/* Qty Total */}
-                    <div className="text-right font-semibold ml-265">
-                        {isFilterApplied ? totals.qty.toFixed(2) : ''}
-                    </div>
-
-                    {/* Skip Rate + UOM */}
-                    <div className=""></div>
-
-                    {/* Amount Total */}
-                    <div className="text-right font-bold ml-30">
-                        {isFilterApplied ? formatINR(Math.abs(totals.amount)) : ''}
-                    </div>
-
-                    <div className="col-span-2"></div>
-
-                </div>
-
             </div>
         </div>
     );

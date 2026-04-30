@@ -295,7 +295,7 @@ const FetchDbItemwise = () => {
             </div>
 
             {/* ✅ Horizontal Scroll Wrapper */}
-            <div className="flex-1 overflow-auto">
+            <div ref={containerRef} className="flex-1 overflow-auto">
                 <table className=" border-collapse min-w-600 border border-gray-400">
                     {/* Sticky Header */}
                     <thead className="sticky top-0 text-[12px] [&_th]:py-0.5 [&_th]:px-0.5:text-center">
@@ -364,9 +364,10 @@ const FetchDbItemwise = () => {
                                     order.approvedBy,
                                     order.companyname
                                 ];
-
+                                const isFirstRow = rowIndex === 0;
                                 return (
                                     <tr
+                                        ref={isFirstRow ? rowRef : null}
                                         key={rowIndex}
                                         onClick={() =>
                                             navigate(`/update_purchase_order/${order.id}`)
@@ -414,42 +415,45 @@ const FetchDbItemwise = () => {
                         {/* Empty rows to maintain table height */}
                         {[...Array(emptyRowsCount)].map((_, i) => (
                             <tr key={`empty-${i}`}>
-                                {Array(10).fill("").map((_, colIndex) => (
+                                {Array(17).fill("").map((_, colIndex) => (
                                     <td key={colIndex} className='border-[0.5px] border-gray-300 py-[1.5px]'>
-                                        $nbsp;
+                                        &nbsp;
                                     </td>
                                 ))}
                             </tr>
                         ))}
                     </tbody>
-                    <tfoot></tfoot>
+                    <tfoot className="sticky bottom-0 bg-white z-10">
+                        <tr className="bg-gray-100 border-t-2 border-gray-400 text-[12px]">
+                            {/* 1. Span from S.No to PO Amount (7 columns) */}
+                            <td colSpan={7} className="border border-gray-400"></td>
+
+                            {/* 2. Label column (Item Name) - Positioning "Total:" near the values */}
+                            <td className="border border-gray-400 font-bold text-right pr-2">
+                                {isFilterApplied ? 'Total:' : ''}
+                            </td>
+
+                            {/* 3. Empty cells for HSN and GST% (2 columns) */}
+                            <td colSpan={2} className="border border-gray-400"></td>
+
+                            {/* 4. Qty Total (11th column / index 10) */}
+                            <td className="border border-gray-400 font-bold text-right pr-1 bg-yellow-50">
+                                {isFilterApplied ? totals.qty.toFixed(2) : ''}
+                            </td>
+
+                            {/* 5. Empty cells for Rate and UOM (2 columns) */}
+                            <td colSpan={2} className="border border-gray-400"></td>
+
+                            {/* 6. Item Amount Total (14th column / index 13) */}
+                            <td className="border border-gray-400 font-bold text-right pr-1 bg-yellow-50">
+                                {isFilterApplied ? formatINR(Math.abs(totals.amount)) : ''}
+                            </td>
+
+                            {/* 7. Remaining columns (Created By, Status, Company Name - 3 columns) */}
+                            <td colSpan={3} className="border border-gray-400"></td>
+                        </tr>
+                    </tfoot>
                 </table>
-            </div>
-
-            {/* 🔥 Sticky Bottom Footer */}
-            <div className="border border-gray-400 text-black px-1 py-1 sticky bottom-0">
-
-                <div className="flex items-center">
-
-                    {/* Empty space */}
-                    <div className=" text-right font-semibold">
-                        Total:
-                    </div>
-
-                    {/* Qty Total */}
-                    <div className="text-right font-semibold ml-265">
-                        {isFilterApplied ? totals.qty.toFixed(2) : ''}
-                    </div>
-
-                    {/* Skip Rate + UOM */}
-                    <div className=""></div>
-
-                    {/* Amount Total */}
-                    <div className="text-right font-bold ml-30">
-                        {isFilterApplied ? formatINR(Math.abs(totals.amount)) : ''}
-                    </div>
-                    <div className="col-span-2"></div>
-                </div>
             </div>
         </div>
     );
