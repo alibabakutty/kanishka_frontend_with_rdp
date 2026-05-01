@@ -8,8 +8,8 @@ const GatewayPage = () => {
   
   // 1. Flatten the menu items for easier indexing
   const menuItems = useMemo(() => [
-    { section: 'MASTERS',  label: 'Accounting Master - Sundry Creditors',        hotkey: 'A', path: '/customers' },
-    { section: 'MASTERS',  label: 'Inventory Master - Material',                 hotkey: 'I', path: '/inventory'   },
+    { section: 'MASTERS',  label: 'Accounting Master - Sundry Creditors',        hotkey: 'A', path: '/fetch_customers' },
+    { section: 'MASTERS',  label: 'Inventory Master - Material',                 hotkey: 'I', path: '/fetch_inventories'   },
     { section: 'VOUCHERS', label: 'Purchase Order - Material',                   hotkey:'P',  path  : '/fetch_material_po'          }, 
     { section: 'VOUCHERS', label: 'Purchase Order - Labour',                     hotkey:'P',  path  :'/fetch_labour_po'             },
     { section: 'VOUCHERS', label: 'Purchase Order - General',                    hotkey:'P',  path  : '/fetch_purchase_order'       },

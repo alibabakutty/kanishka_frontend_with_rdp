@@ -12,6 +12,8 @@ import DayBook from "../components/fetch/Daybook/daybook";
 import FetchDbItemwise from "../components/fetch/Daybook/daybook_item"
 import FetchLabourItem from "../components/fetch/Labour/FetchLabourItem"
 import FetchMaterialItem from "../components/fetch/Material/FetchMaterialItem";
+import FetchAccountingMaster from "../components/fetch/Accounting-Master/FetchAccountingMaster";
+import FetchInventoryMaster from "../components/fetch/Inventory-Master/FetchInventoryMaster";
 
 const routeConfig = [
     { path: '/',                          element: <Home /> },
@@ -28,7 +30,11 @@ const routeConfig = [
     { path: '/fetch_item_purchase_order', element: <FetchItemPurchaseOrder /> },
     { path: '/update_purchase_order/:id', element: <PurchaseOrder /> },
     { path: '/customers',                 element: <CustomerMaster /> },
-    { path: '/inventory',                 element: <InventoryMaster /> }
+    { path: '/inventory',                 element: <InventoryMaster /> },
+    { path: '/fetch_customers', element: <FetchAccountingMaster /> },
+    { path: '/update_customer/:id', element: <CustomerMaster /> },
+    { path: '/fetch_inventories', element: <FetchInventoryMaster /> },
+    { path: '/update_inventory/:id', element: <InventoryMaster /> }
 ];
 
 export default routeConfig;

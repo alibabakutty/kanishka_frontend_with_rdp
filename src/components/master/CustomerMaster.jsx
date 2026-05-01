@@ -1,21 +1,47 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const CustomerMaster = () => {
+  const { id } = useParams();
   const [formData, setFormData] = useState({
-    customerCode: "",
-    customerName: "",
-    email: "",
-    region: "",
-    salesExecutive: "",
+    sundryCreditorName: "",
+    parentName: "",
+    grandParentName: ""
   });
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const token = localStorage.getItem('token');
 
+        const response = await axios.get(`${API_URL}/api/v1/accounting-masters/${id}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+        });
+        console.log("Response:", response.data);
+
+        if (response.data) {
+          setFormData({
+            sundryCreditorName: response.data.sundryCreditorName || "",
+            parentName: response.data.parentName || "",
+            grandParentName: response.data.grandParentName || ""
+          });
+        }
+
+      } catch (error) {
+        console.error('Error fetching customer:', error);
+      }
+    }
+    if (id) {
+      fetchCustomers();
+    }
+  }, [id]);
+  
   const handleSave = () => {
     console.log(formData);
     alert("Customer Saved!");
@@ -26,91 +52,57 @@ const CustomerMaster = () => {
 
       {/* Back Button */}
       <div className="p-4">
-        <button className="bg-teal-500 hover:bg-teal-600 text-white px-3 py-1 rounded">
+        <button onClick={() => navigate(-1)} className="bg-teal-500 hover:bg-teal-600 text-white px-3 py-1 rounded">
           Back
         </button>
       </div>
 
       {/* Card */}
-      <div className="flex justify-end px-10">
-        <div className="w-full max-w-md bg-white rounded shadow-lg p-4">
-          
+      <div className="flex">
+        <div className=" bg-white rounded shadow-lg w-140 h-40 ml-200">
+
           {/* Card Header */}
           <div className="bg-green-800 text-white text-center font-semibold py-1 mb-4">
-            Customer Master
+            Accounting Master
           </div>
 
           {/* Form */}
           <div className="space-y-3 text-sm">
-            
+
             <div className="flex items-center">
-              <label className="w-40">Customer Code :</label>
+              <label className="w-40 pl-1">Customer Name :</label>
               <input
                 type="text"
-                name="customerCode"
-                value={formData.customerCode}
-                onChange={handleChange}
-                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
-                  
+                name="sundryCreditorName"
+                value={formData.sundryCreditorName}
+                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-40 h-5 pl-1 mr-1"
+                autoComplete="off"
+                readOnly
               />
             </div>
 
             <div className="flex items-center">
-              <label className="w-40">Customer Name :</label>
+              <label className="w-40 pl-1">Parent :</label>
               <input
                 type="text"
-                name="customerName"
-                value={formData.customerName}
-                onChange={handleChange}
-                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
+                name="parentName"
+                value={formData.parentName}
+                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-40 h-5 pl-1 mr-1"
                 autoComplete="off"
+                readOnly
               />
             </div>
 
             <div className="flex items-center">
-              <label className="w-40">Email :</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
-                autoComplete="off"
-              />
-            </div>
-
-            <div className="flex items-center">
-              <label className="w-40">Region :</label>
+              <label className="w-40 pl-1">Grand Parent :</label>
               <input
                 type="text"
-                name="region"
-                value={formData.region}
-                onChange={handleChange}
+                name="grandParentName"
+                value={formData.grandParentName}
                 autoComplete="off"
-                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
+                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-40 h-5 pl-1 mr-1"
+                readOnly
               />
-            </div>
-
-            <div className="flex items-center">
-              <label className="w-40">Sales Executive :</label>
-              <input
-                type="text"
-                name="salesExecutive"
-                value={formData.salesExecutive}
-                onChange={handleChange}
-                autoComplete="off"
-                className="flex-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 h-5 pl-1"
-              />
-            </div>
-
-            {/* Save Button */}
-            <div className="flex justify-end pt-2">
-              <button
-                onClick={handleSave}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded"
-              >
-                Save
-              </button>
             </div>
           </div>
         </div>
