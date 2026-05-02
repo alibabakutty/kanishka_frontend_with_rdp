@@ -26,7 +26,10 @@ const FetchInventoryMaster = () => {
 
     return (
       customer.itemName?.toLowerCase().includes(search) ||
-      customer.uom?.toLowerCase().includes(search)
+      customer.itemUom?.toLowerCase().includes(search) ||
+      customer.hsnCode?.toLowerCase().includes(search) ||
+      customer.gstPercentage?.toString().toLowerCase().includes(search) ||
+      customer.itemRate?.toString().toLowerCase().includes(search)
     );
   });
   const [dynamicRows, setDynamicRows] = useState(0);
@@ -191,6 +194,9 @@ const FetchInventoryMaster = () => {
               <th className="border border-gray-400 text-center">S. No</th>           
               <th className="border border-gray-400 text-center">Item Name</th>
               <th className="border border-gray-400 text-center">UOM</th>
+              <th className="border border-gray-400 text-center">HSN</th>
+              <th className="border border-gray-400 text-center">GST</th>
+              <th className="border border-gray-400 text-center">Rate</th>
             </tr>
           </thead>
 
@@ -200,7 +206,10 @@ const FetchInventoryMaster = () => {
                 const rowData = [
                   rowIndex + 1,
                   customer.itemName,
-                  customer.uom
+                  customer.itemUom,
+                  customer.hsnCode,
+                  customer.gstPercentage,
+                  formatINR(customer.itemRate)
                 ];
                 const isFirstRow = rowIndex === 0;
                 return (

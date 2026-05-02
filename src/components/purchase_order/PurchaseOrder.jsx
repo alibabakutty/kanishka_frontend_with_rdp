@@ -10,10 +10,10 @@ import { formatDate, formatINR } from "../utils/utils";
 
 const PurchaseOrder = () => {
     const { id } = useParams();
-    const [token,SetToken]=useState("");
+    const [token, SetToken] = useState("");
     const [showProduct, setShowProduct] = useState(false);
     const [showSubForm, setShowSubForm] = useState(false);
-    const [vchstatus,setVchstatus]=useState("");
+    const [vchstatus, setVchstatus] = useState("");
     const [tableData, setTableData] = useState([
         {
             description: "",
@@ -25,7 +25,7 @@ const PurchaseOrder = () => {
             uom: "",
             discount: "",
             amount: "",
-            companyname:"",
+            companyname: "",
             allocation: [
                 {
                     dueOn: "",
@@ -49,7 +49,7 @@ const PurchaseOrder = () => {
         voucherDate: '',
         voucherType: '',
         orderNo: '',
-        companyname:''
+        companyname: ''
     });
     const [narration, setNarration] = useState("");
     const [createdBy, setCreatedBy] = useState("");
@@ -66,20 +66,20 @@ const PurchaseOrder = () => {
         const fetchOrderData = async () => {
             try {
                 SetToken(localStorage.getItem('token'));
-             
+
                 const response = await axios.get(`${API_URL}/api/v1/purchase-orders/${id}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
                 const data = response.data;
-                 // map api
+                // map api
                 setHeaderData({
                     customerName: data.partyLedgerName,
                     voucherNo: data.voucherNumber,
                     voucherDate: data.voucherDate,
                     voucherType: data.voucherType,
                     orderNo: data.orderNo,
-                    companyname:data.companyName
+                    companyname: data.companyName
                 });
                 // map inventoryentries to your tabledata state
                 if (data.inventoryEntries && data.inventoryEntries.length > 0) {
@@ -93,7 +93,7 @@ const PurchaseOrder = () => {
                         uom: entry.itemUom,
                         discount: "",
                         amount: Math.abs(entry.itemAmount).toFixed(2),
-                        companyname:entry.companyName,
+                        companyname: entry.companyName,
                         allocation: [
                             {
                                 dueOn: formatDate(data.voucherDate),
@@ -111,10 +111,10 @@ const PurchaseOrder = () => {
                     setNarration(data.narration);
                     setCreatedBy(data.createdBy);
                     setApprovedBy(
-                        data.approvedBy=="Approved By Tally" ? "Approved":''
+                        data.approvedBy == "Approved By Tally" ? "Approved" : ''
                     );
                     setVchstatus(data.approvedBy);
-                 }
+                }
             } catch (error) {
                 console.error('Failed to fetch order:', error);
                 alert("Error fetching order details")
@@ -169,45 +169,6 @@ const PurchaseOrder = () => {
         return () => window.removeEventListener('keydown', handleGlobalKeyDown);
     }, [navigate, showSubForm, showProduct]);
 
-    // const handleFormSubmit = async () => {
-    //     const customerName = headerData.customerName;
-    //     const voucherNo = headerData.voucherNo;
-    //     const voucherDate = headerData.voucherDate;
-    //     const voucherType = headerData.voucherType;
-    //     const orderNo = headerData.orderNo;
-    //     const orderItem = tableData.map((item) => ({
-    //         description: item.description,
-    //         dueDate: item.dueOn,
-    //         quantity: item.quantity,
-    //         rate: item.rate,
-    //         uom: item.uom,
-    //         discount: item.discount,
-    //         amount: item.amount,
-    //         batchWiseItem: item.allocation.map((batch) => ({
-    //             dueDate: batch.dueOn,
-    //             location: batch.location,
-    //             batchNo: batch.batchNo,
-    //             quantity: batch.quantity,
-    //             rate: batch.rate,
-    //             uom: batch.uom,
-    //             discount: batch.discount,
-    //             amount: batch.amount,
-    //         })),
-    //     }));
-    //     const data = {
-    //         customerName,
-    //         voucherNo,
-    //         voucherDate,
-    //         voucherType,
-    //         orderNo,
-    //         orderItem,
-    //         narration,
-    //         createdBy,
-    //         approvedBy
-    //     };
-    //     await axios.post('/transact/save', data);
-    // };
-
 
     const afterAllocation = (row) => {
         setTimeout(() => {
@@ -241,11 +202,11 @@ const PurchaseOrder = () => {
         return amt.toFixed(2);
     }, [tableData]);
 
- 
+
 
     return (
         <>
-            <div className="w-full h-145">
+            <div className="flex flex-col h-screen">
                 <Title title="Order Voucher Creation" customerName={headerData.customerName} orderData={{
                     voucherNo: headerData.voucherNo,
                     voucherDate: headerData.voucherDate,
@@ -254,10 +215,10 @@ const PurchaseOrder = () => {
                     totalAmount: totalAmount,
                     narration: narration
                 }} />
-                
+
                 <form
                     action=""
-                    className="relative"
+                    className="flex-1 flex flex-col"
                     onSubmit={(e) => e.preventDefault()}
                 >
                     <Header
@@ -267,14 +228,14 @@ const PurchaseOrder = () => {
                         data={headerData}
                         tableRefs={tableRefs}
                     />
-                    <div className="h-[calc(100vh-125px)] overflow-auto">
+                    <div className="flex-1 overflow-auto min-h-0">
                         <table className="w-full">
                             <thead className=" bg-[#F9F3CC] text-[12px] border border-slate-300 font-semibold sticky top-0">
                                 <tr className="h-4.25 leading-4 border border-slate-300">
                                     <th className="w-11.25 text-center border border-slate-300">
                                         S.No
                                     </th>
-                                    <th className="w-105 text-center border border-slate-300">
+                                    <th className="w-80 text-center border border-slate-300">
                                         Product Name
                                     </th>
                                     <th className="w-17.5 text-center border border-slate-300">
@@ -283,7 +244,7 @@ const PurchaseOrder = () => {
                                     <th className="w-17.5 text-center border border-slate-300">
                                         GST %
                                     </th>
-                                    <th className="w-15 text-center border border-slate-300">
+                                    <th className="w-17 text-center border border-slate-300">
                                         Due on
                                     </th>
                                     <th className="w-17.5 text-center border border-slate-300">
@@ -292,7 +253,7 @@ const PurchaseOrder = () => {
                                     <th className="w-12.5 text-center border border-slate-300">
                                         UOM
                                     </th>
-                                    <th className="w-22.5 text-right border border-slate-300">
+                                    <th className="w-22.5 text-right border border-slate-300 pr-1">
                                         Rate
                                     </th>
                                     <th className="w-9.5 text-center border border-slate-300">
@@ -325,7 +286,7 @@ const PurchaseOrder = () => {
                                                 //value={item.description}
                                                 onKeyDown={(e) => {
                                                     if (e.key === 'Enter') {
-                                                        setSelectedItem( item.description);
+                                                        setSelectedItem(item.description);
                                                         setShowSubForm(true)
                                                     }
                                                 }}
@@ -335,7 +296,7 @@ const PurchaseOrder = () => {
                                                 }}
                                                 readOnly={vchstatus === 'Approved'}
                                                 autoComplete="off"
-                                                // onBlur={() => setShowProduct(false)}
+                                            // onBlur={() => setShowProduct(false)}
                                             />
                                         </td>
                                         <td className="pl-1 border border-slate-300 bg-white">
@@ -350,12 +311,12 @@ const PurchaseOrder = () => {
                                             {item.dueOn}
                                         </td>
                                         <td className="border border-slate-300 bg-white text-right pr-1">
-                                              <input
+                                            <input
                                                 className="w-full outline-0 text-right focus:bg-amber-300 pr-1"
                                                 type="text"
                                                 name="Quantity"
                                                 defaultValue={item.quantity}
-                                             />
+                                            />
                                         </td>
                                         <td className="text-center border border-slate-300 bg-white">
                                             {item.uom}
@@ -385,48 +346,51 @@ const PurchaseOrder = () => {
                             </tbody>
                         </table>
 
-                            {showSubForm && (
-                                    <VoucherSub
-                                        isClose={setShowSubForm}
-                                        selectionItem={selectedItem}
-                                        orderData={tableData}
-                                        setOrderData={setTableData}
-                                        allocation={tableData[focusedRow].allocation}
-                                        row={focusedRow}
-                                        afterAllocation={afterAllocation}
-                                        approve={vchstatus}
-                                    />
-                            )}
+                        {showSubForm && (
+                            <VoucherSub
+                                isClose={setShowSubForm}
+                                selectionItem={selectedItem}
+                                orderData={tableData}
+                                setOrderData={setTableData}
+                                allocation={tableData[focusedRow].allocation}
+                                row={focusedRow}
+                                afterAllocation={afterAllocation}
+                                approve={vchstatus}
+                            />
+                        )}
                     </div>
-                    <div className="w-full flex mb-0.5">
-                        <div className="border-y border-slate-400 h-5.5 w-117.5 flex items-center justify-between ml-222.5">
-                            <span className="w-20 text-right text-[14px] font-semibold">
-                                {totalQuantity !== '0.00' ? totalQuantity : ''}
-                            </span>
-                            <span className="w-24 text-right text-[14px] font-semibold">
-                                {totalAmount !== '0.00' ? formatINR(totalAmount) : ''}
-                            </span>
+                    <div className="sticky bottom-0 z-10 border-t border-slate-300 bg-white pb-3">
+                        {/* Totals */}
+                        <div className="flex justify-end pr-1 py-1">
+                            <div className="border-y border-slate-400 h-6 w-104 flex items-center justify-between">
+                                <span className="text-right text-[14px] font-semibold">
+                                    {totalQuantity !== '0.00' ? totalQuantity : ''}
+                                </span>
+                                <span className="text-right text-[14px] font-semibold">
+                                    {totalAmount !== '0.00' ? formatINR(totalAmount) : ''}
+                                </span>
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Footer Component */}
-                                    <Footer
-                        narration={narration}
-                        setNarration={setNarration}
-                        inputRefs={inputRefs}
-                        setInputRef={setInputRef}
-                        createdBy={createdBy}
-                        setCreatedBy={setCreatedBy}
-                        approvedBy={approvedBy}
-                        setApprovedBy={setApprovedBy}
-                        navigate={navigate}
-                        id={id}
-                        token={token}
-                        tableData={tableData}
-                        headerData={headerData}
-                        totalAmount={totalAmount}
-                        approve={vchstatus}
-                     />
+                        {/* Footer */}
+                        <Footer
+                            narration={narration}
+                            setNarration={setNarration}
+                            inputRefs={inputRefs}
+                            setInputRef={setInputRef}
+                            createdBy={createdBy}
+                            setCreatedBy={setCreatedBy}
+                            approvedBy={approvedBy}
+                            setApprovedBy={setApprovedBy}
+                            navigate={navigate}
+                            id={id}
+                            token={token}
+                            tableData={tableData}
+                            headerData={headerData}
+                            totalAmount={totalAmount}
+                            approve={vchstatus}
+                        />
+                    </div>
                 </form>
             </div>
         </>

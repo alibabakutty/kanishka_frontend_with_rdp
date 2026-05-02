@@ -37,7 +37,7 @@ const Header = ({ title, inputRefs, setInputRef, data, tableRefs, isForex }) => 
 					<span className="text-[14px] font-semibold ml-1">
 						:
 					</span>
-					<input type="text" name='voucherNo' value={data.voucherNo} className='w-24 text-[13px] outline-0 border border-transparent focus:border focus:border-blue-400 focus:bg-amber-200 bg-transparent ml-1 font-semibold ' readOnly />
+					<input type="text" name='voucherNo' value={data.voucherNo} className='w-32 text-[13px] outline-0 border border-transparent focus:border focus:border-blue-400 focus:bg-amber-200 bg-transparent ml-1 font-semibold ' readOnly />
 				</div>
 
 				<div className="flex leading-4 px-1 pt-1.5">
