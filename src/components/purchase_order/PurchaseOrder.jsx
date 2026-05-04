@@ -229,10 +229,10 @@ const PurchaseOrder = () => {
                         tableRefs={tableRefs}
                     />
                     <div className="flex-1 overflow-auto min-h-0">
-                        <table className="w-full">
-                            <thead className=" bg-[#F9F3CC] text-[12px] border border-slate-300 font-semibold sticky top-0">
-                                <tr className="h-4.25 leading-4 border border-slate-300">
-                                    <th className="w-11.25 text-center border border-slate-300">
+                        <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+                            <thead className=" bg-[#F9F3CC] text-[12px] font-semibold sticky top-0">
+                                <tr className="h-4.25 leading-4">
+                                    <th className="w-11.25 text-center border-r border-slate-300" >
                                         S.No
                                     </th>
                                     <th className="w-80 text-center border border-slate-300">
