@@ -233,11 +233,23 @@ const FetchDbItemwise = () => {
         });
     }, [focusedIndex, focusedCol]);
 
+    const poTotal = useMemo(() => {
+        const uniqueOrders = new Map();
+
+        filteredOrders.forEach((order) => {
+            if (!uniqueOrders.has(order.id)) {
+                uniqueOrders.set(order.id, Number(order.totalAmount) || 0);
+            }
+        });
+
+        return Array.from(uniqueOrders.values()).reduce((a, b) => a + b, 0);
+    }, [filteredOrders]);
+
     if (loading) return <div className="p-4 text-center">Loading orders...</div>;
     if (error) return <div className="p-4 text-red-500 text-center">Error: {error}</div>;
 
     return (
-        <div className="h-screen flex flex-col bg-white text-sm">
+        <div className="h-screen flex flex-col bg-white text-[12.5px]">
             {/* Navbar */}
             <nav className="bg-[#003366] text-white px-4 py-1 flex justify-between">
                 <h1 className="text-sm font-bold">DayBook - MLG</h1>
@@ -296,7 +308,7 @@ const FetchDbItemwise = () => {
 
             {/* ✅ Horizontal Scroll Wrapper */}
             <div ref={containerRef} className="flex-1 overflow-auto">
-                <table className=" border-collapse min-w-600 border border-gray-400">
+                <table className=" border-collapse min-w-712.5 border border-gray-400">
                     {/* Sticky Header */}
                     <thead className="sticky top-0 text-[12px] [&_th]:py-0.5 [&_th]:px-0.5:text-center">
                         <tr className="bg-green-800 text-white">
@@ -316,7 +328,7 @@ const FetchDbItemwise = () => {
                             <th className="border border-gray-400 w-44">Amount</th>
                             <th className="border border-gray-400 w-20">Created By</th>
                             <th className="border border-gray-400 w-40">Approved Status</th>
-                            <th className="border border-gray-400 w-92 text-center">Company Name</th>
+                            <th className="border border-gray-400 w-96 text-center">Company Name</th>
                         </tr>
 
                         {/* Filters */}
@@ -339,7 +351,7 @@ const FetchDbItemwise = () => {
                         )}
                     </thead>
 
-                    <tbody className='text-[12px] [&_th]:py-0.5 [&_th]:px-0.5'>
+                    <tbody className='[&_th]:py-0.5 [&_th]:px-0.5'>
                         {filteredOrders.length > 0 ? (
                             filteredOrders.map((order, rowIndex) => {
                                 const isSameOrder = lastOrderId === order.id;
@@ -379,7 +391,7 @@ const FetchDbItemwise = () => {
                                                 // key={colIndex}
                                                 data-row={rowIndex}
                                                 data-col={colIndex}
-                                                className={`
+                                                className={`h-[27.5px]
                             border border-gray-300 px-1
                             ${focusedIndex === rowIndex && focusedCol === colIndex
                                                         ? 'bg-yellow-200 border border-black'
@@ -393,7 +405,8 @@ const FetchDbItemwise = () => {
                                                         colIndex === 2 || colIndex === 3 ||
                                                         colIndex === 4 || colIndex === 5 ||
                                                         colIndex === 7 || colIndex === 8 ||
-                                                        colIndex === 9 || colIndex === 12 || colIndex === 16 || colIndex === 17
+                                                        colIndex === 9 || colIndex === 12 || colIndex === 16 || colIndex === 15 ||
+                                                        colIndex === 14
                                                         ? 'text-left pl-1 '
                                                         : 'text-right'
                                                     }
@@ -426,15 +439,21 @@ const FetchDbItemwise = () => {
                     <tfoot className="sticky bottom-0 bg-white z-10">
                         <tr className="bg-gray-100 border-t-2 border-gray-400 text-[12px]">
                             {/* 1. Span from S.No to PO Amount (7 columns) */}
-                            <td colSpan={7} className="border border-gray-400"></td>
+                            <td colSpan={5} className="border border-gray-400"></td>
 
                             {/* 2. Label column (Item Name) - Positioning "Total:" near the values */}
                             <td className="border border-gray-400 font-bold text-right pr-2">
-                                {isFilterApplied ? 'Total:' : ''}
+                                Total :
+                            </td>
+
+
+                            {/* total po amount */}
+                            <td className="border border-gray-400 font-bold text-right pr-1 bg-yellow-50">
+                                {formatINR(poTotal)}
                             </td>
 
                             {/* 3. Empty cells for HSN and GST% (2 columns) */}
-                            <td colSpan={2} className="border border-gray-400"></td>
+                            <td colSpan={3} className="border border-gray-400"></td>
 
                             {/* 4. Qty Total (11th column / index 10) */}
                             <td className="border border-gray-400 font-bold text-right pr-1 bg-yellow-50">
@@ -446,7 +465,7 @@ const FetchDbItemwise = () => {
 
                             {/* 6. Item Amount Total (14th column / index 13) */}
                             <td className="border border-gray-400 font-bold text-right pr-1 bg-yellow-50">
-                                {isFilterApplied ? formatINR(Math.abs(totals.amount)) : ''}
+                                {formatINR(Math.abs(totals.amount))}
                             </td>
 
                             {/* 7. Remaining columns (Created By, Status, Company Name - 3 columns) */}

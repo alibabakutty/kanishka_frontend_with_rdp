@@ -158,9 +158,6 @@ const FetchAccountingMaster = () => {
         <h1 className="text-sm font-bold tracking-tight">KANISHKA - Accounting Master</h1>
 
         <div className="flex items-center gap-6">
-          {/* <button className="bg-[#e63946] px-4 py-1 rounded flex items-center gap-2 font-semibold uppercase text-xs">
-            <span className="bg-white text-[#e63946] rounded-sm px-0.5">■</span> ADMINISTRATOR
-          </button> */}
           <div className="text-sm">
             <span className="font-bold">{username}</span> | <button className="hover:underline">Logout</button>
           </div>
@@ -190,7 +187,7 @@ const FetchAccountingMaster = () => {
       <div ref={containerRef} className="flex-1 overflow-auto">
         <table className="w-full border-collapse border border-gray-300">
           <thead className="bg-[#004d26] text-white text-left [&_th]:px-[0.5] [&_th]:py-1 [&_th]:border [&_th]:border-gray-500">
-            <tr className="bg-[#004d26] text-white text-left  ">
+            <tr className="bg-[#004d26] text-white text-left text-[12.5px]">
               <th className="border border-gray-400 text-center">S. No</th>
              
               <th className="border border-gray-400 text-center">Party Ledger Name</th>
@@ -199,7 +196,7 @@ const FetchAccountingMaster = () => {
             </tr>
           </thead>
 
-          <tbody className="[&_th]:px-1 [&_th]:py-1 [&_th]:border [&_th]:border-gray-500" >
+          <tbody className="text-[12.5px] [&_th]:px-1 [&_th]:py-1 [&_th]:border [&_th]:border-gray-500" >
             {filteredCustomers.length > 0 ? (
               filteredCustomers.map((customer, rowIndex) => {
                 const rowData = [

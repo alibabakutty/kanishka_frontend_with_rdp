@@ -157,7 +157,7 @@ const Labour = () => {
   if (error) return <div className='p-4 text-red-500 text-center'>Error: {error}</div>
 
   return (
-    <div className="h-screen flex flex-col bg-white font-sans text-xs">
+    <div className="h-screen flex flex-col bg-white font-sans text-[12.5px]">
       {/* Top Blue Navbar */}
       <nav className="bg-[#003366] text-white px-1 py-1 flex justify-between items-center">
         <h1 className="text-sm font-bold tracking-tight">PURCHASE ORDER - LABOUR</h1>
@@ -237,7 +237,7 @@ const Labour = () => {
                         key={colIndex}
                         data-row={rowIndex}
                         data-col={colIndex}
-                        className={`
+                        className={`h-6.75
                     border border-gray-200 px-1 py-0.5 font-semibold
                     ${focusedIndex === rowIndex && focusedCol === colIndex
                             ? 'bg-yellow-200 border-2 border-black'

@@ -225,6 +225,10 @@ const FetchLabourItem = () => {
         );
     }, [searchTerm, filters]);
 
+    const isAdvancedFilterApplied = useMemo(() => {
+        return Object.values(filters).some((val) => val.trim() !== '');
+    }, [filters]);
+
     useEffect(() => {
         const el = document.querySelector(
             `[data-row="${focusedIndex}"][data-col="${focusedCol}"]`
@@ -235,13 +239,23 @@ const FetchLabourItem = () => {
         });
     }, [focusedIndex, focusedCol]);
 
+    const poTotal = useMemo(() => {
+        const uniqueOrders = new Map();
 
+        filteredOrders.forEach((order) => {
+            if (!uniqueOrders.has(order.id)) {
+                uniqueOrders.set(order.id, Number(order.totalAmount) || 0);
+            }
+        });
+
+        return Array.from(uniqueOrders.values()).reduce((a, b) => a + b, 0);
+    }, [filteredOrders]);
 
     if (loading) return <div className="p-4 text-center">Loading orders...</div>;
     if (error) return <div className="p-4 text-red-500 text-center">Error: {error}</div>;
 
     return (
-        <div className="h-screen flex flex-col bg-white text-sm">
+        <div className="h-screen flex flex-col bg-white text-[12.5px]">
             {/* Navbar */}
             <nav className="bg-[#003366] text-white px-4 py-1 flex justify-between">
                 <h1 className="text-sm font-bold">PURCHASE ORDER - MATERIAL</h1>
@@ -300,10 +314,10 @@ const FetchLabourItem = () => {
 
             {/* ✅ Horizontal Scroll Wrapper */}
             <div ref={containerRef} className="flex-1 overflow-auto">
-                <table className=" border-collapse min-w-600 border border-gray-400">
+                <table className=" border-collapse min-w-712.5 border border-gray-400">
                     {/* Sticky Header */}
                     <thead className="bg-[#004d26] text-white text-left [&_th]:px-[0.5] [&_th]:py-1 [&_th]:border [&_th]:border-gray-500">
-                        <tr className="bg-green-800 text-white text-[12px] text-center">
+                        <tr className="bg-green-800 text-white text-center">
                             <th className="border border-gray-400 w-9">S.No</th>
                             <th className="border border-gray-400 w-52 text-left pl-2">Voucher Type</th>
                             <th className="border border-gray-400 w-32">Voucher No</th>
@@ -320,17 +334,17 @@ const FetchLabourItem = () => {
                             <th className="border border-gray-400 w-24">Amount</th>
                             <th className="border border-gray-400 w-20">Created By</th>
                             <th className="border border-gray-400 w-40">Approved Status</th>
-                            <th className="border border-gray-400 w-90">Company Name</th>
+                            <th className="border border-gray-400 w-96">Company Name</th>
                         </tr>
 
                         {/* Filters */}
                         {showFilters && (
                             <tr className="bg-gray-200">
-                                <th className='border border-gray-400 px-1 py-0.5 '></th>
+                                <th className='border border-gray-400 px-1 py-0.5'></th>
                                 {Object.keys(filters).map((key) => (
                                     <th key={key}>
                                         <input
-                                            className="text-[12px] outline-0 border border-transparent focus:border focus:border-blue-400 focus:bg-amber-200 bg-transparent w-full pl-1 capitalize"
+                                            className="outline-0 border border-transparent focus:border focus:border-blue-400 focus:bg-amber-200 bg-transparent w-full pl-1 capitalize"
                                             value={filters[key]}
                                             onChange={(e) =>
                                                 setFilters({ ...filters, [key]: e.target.value })
@@ -343,7 +357,7 @@ const FetchLabourItem = () => {
                         )}
                     </thead>
 
-                    <tbody className="[&_th]:px-1 [&_th]:py-1 [&_th]:border [&_th]:border-gray-500 text-[12px]">
+                    <tbody className="[&_th]:px-1 [&_th]:py-1 [&_th]:border [&_th]:border-gray-500">
                         {filteredOrders.length > 0 ? (
                             filteredOrders.map((order, rowIndex) => {
                                 const isSameOrder = lastOrderId === order.id;
@@ -384,7 +398,7 @@ const FetchLabourItem = () => {
                                                 data-row={rowIndex}
                                                 data-col={colIndex}
                                                 className={`
-                            border border-gray-300 px-1
+                            h-7.5 border border-gray-300 px-1
                             ${focusedIndex === rowIndex && focusedCol === colIndex
                                                         ? 'bg-yellow-200 border border-black'
                                                         : focusedIndex === rowIndex
@@ -393,7 +407,7 @@ const FetchLabourItem = () => {
                                                                 ? 'bg-yellow-50'
                                                                 : ''
                                                     }
-                            ${colIndex === 0 || colIndex === 1 || colIndex === 4 || colIndex === 5 || colIndex === 7 || colIndex === 8 || colIndex === 9 || colIndex === 12
+                            ${colIndex === 0 || colIndex === 1 || colIndex === 2 || colIndex === 3|| colIndex === 4 || colIndex === 5 || colIndex === 7 || colIndex === 8 || colIndex === 9 || colIndex === 12 || colIndex === 14 || colIndex === 15 || colIndex === 16
                                                         ? 'text-left pl-2'
                                                         : 'text-right'
                                                     }
@@ -429,19 +443,24 @@ const FetchLabourItem = () => {
                     <tfoot className="sticky bottom-0 bg-white z-10">
                         <tr className="bg-gray-100 border-t-2 border-gray-400 text-[12px]">
                             {/* 1. Span from S.No to PO Amount (7 columns) */}
-                            <td colSpan={7} className="border border-gray-400"></td>
+                            <td colSpan={5} className="border border-gray-400"></td>
 
                             {/* 2. Label column (Item Name) - Positioning "Total:" near the values */}
                             <td className="border border-gray-400 font-bold text-right pr-2">
-                                {isFilterApplied ? 'Total:' : ''}
+                                Total :
+                            </td>
+
+                                                        {/* total po amount */}
+                            <td className="border border-gray-400 font-bold text-right pr-1 bg-yellow-50">
+                                {formatINR(poTotal)}
                             </td>
 
                             {/* 3. Empty cells for HSN and GST% (2 columns) */}
-                            <td colSpan={2} className="border border-gray-400"></td>
+                            <td colSpan={3} className="border border-gray-400"></td>
 
                             {/* 4. Qty Total (11th column / index 10) */}
                             <td className="border border-gray-400 font-bold text-right pr-1 bg-yellow-50">
-                                {isFilterApplied ? totals.qty.toFixed(2) : ''}
+                                {isAdvancedFilterApplied ? totals.qty.toFixed(2) : ''}
                             </td>
 
                             {/* 5. Empty cells for Rate and UOM (2 columns) */}
@@ -449,7 +468,7 @@ const FetchLabourItem = () => {
 
                             {/* 6. Item Amount Total (14th column / index 13) */}
                             <td className="border border-gray-400 font-bold text-right pr-1 bg-yellow-50">
-                                {isFilterApplied ? formatINR(Math.abs(totals.amount)) : ''}
+                                {formatINR(Math.abs(totals.amount))}
                             </td>
 
                             {/* 7. Remaining columns (Created By, Status, Company Name - 3 columns) */}

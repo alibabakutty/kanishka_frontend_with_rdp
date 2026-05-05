@@ -29,7 +29,7 @@ const MaterialPo = () => {
       order.partyLedgerName?.toLowerCase().includes(search) ||
       order.voucherType?.toLowerCase().includes(search) ||
       order.totalAmount?.toString().includes(search) ||
-      order.companyName?.toLowerCase().includes(search)      // converts number to string for searching
+      order.companyName?.toLowerCase().includes(search)
     );
   });
   const [dynamicRows, setDynamicRows] = useState(0);
@@ -44,7 +44,7 @@ const MaterialPo = () => {
       const containerHeight = containerRef.current.clientHeight;
       const rowHeight = rowRef.current.clientHeight;
 
-      const visibleRows = Math.floor(containerHeight / rowHeight);
+      const visibleRows = Math.floor((containerHeight) / rowHeight);
       setDynamicRows(visibleRows);
     }
     calculateRows();
@@ -156,7 +156,7 @@ const MaterialPo = () => {
   if (error) return <div className='p-4 text-red-500 text-center'>Error: {error}</div>
 
   return (
-    <div className="h-screen flex flex-col bg-white font-sans text-xs">
+    <div className="h-screen flex flex-col bg-white font-sans text-[12.5px]">
       {/* Top Blue Navbar */}
       <nav className="bg-[#003366] text-white px-1 py-1 flex justify-between items-center">
         <h1 className="text-sm font-bold tracking-tight">PURCHASE ORDER - MATERIAL</h1>
@@ -190,15 +190,15 @@ const MaterialPo = () => {
 
       {/* Table Section */}
       <div ref={containerRef} className="flex-1 overflow-auto">
-        <table className="w-full border-collapse border border-gray-300 min-w-[1500px]">
+        <table className="w-full border-collapse border border-gray-300 min-w-[1600px]">
           <thead className="bg-[#004d26] text-white text-left [&_th]:px-[0.5] [&_th]:py-1 [&_th]:border [&_th]:border-gray-500">
-            <tr className="bg-[#004d26] text-white text-left  ">
+            <tr className="bg-[#004d26] text-white text-left">
               <th className="border border-gray-400 text-center w-12">S. No</th>
-              <th className="border border-gray-400 text-center w-52">Voucher Type</th>
-              <th className="border border-gray-400 text-center w-36">Voucher No</th>
-              <th className="border border-gray-400 text-center w-36">PO No</th>
+              <th className="border border-gray-400 text-center w-60">Voucher Type</th>
+              <th className="border border-gray-400 text-center w-40">Voucher No</th>
+              <th className="border border-gray-400 text-center w-40">PO No</th>
               <th className="border border-gray-400 text-center w-28">PO Date</th>
-              <th className="border border-gray-400 text-center w-72">Party Ledger Name</th>
+              <th className="border border-gray-400 text-center w-88">Party Ledger Name</th>
               <th className="border border-gray-400 text-right pr-2 w-40">PO Amount</th>
               <th className="border border-gray-400 text-right pr-2 w-24">Created By</th>
               <th className="border border-gray-400 text-right pr-2 w-36">Approved Status</th>
@@ -234,7 +234,7 @@ const MaterialPo = () => {
                         key={colIndex}
                         data-row={rowIndex}
                         data-col={colIndex}
-                        className={`
+                        className={`h-7
                     border border-gray-200 px-1 py-0.5 font-semibold
                     ${focusedIndex === rowIndex && focusedCol === colIndex
                             ? 'bg-yellow-200 border-2 border-black'
@@ -246,7 +246,7 @@ const MaterialPo = () => {
                           }
                     ${colIndex === 0 || colIndex === 4
                             ? 'text-center'
-                            : colIndex === 6 || colIndex === 7 || colIndex === 8
+                            : colIndex === 6
                               ? 'text-right pr-2'
                               : 'text-left pl-2'
                           }

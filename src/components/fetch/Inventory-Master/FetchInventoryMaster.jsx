@@ -150,7 +150,7 @@ const FetchInventoryMaster = () => {
     });
   }, [focusedIndex, focusedCol]);
 
-  if (loading) return <div className='p-4 text-center'>Loading customers...</div>;
+  if (loading) return <div className='p-4 text-center'>Loading inventories...</div>;
   if (error) return <div className='p-4 text-red-500 text-center'>Error: {error}</div>
 
   return (
@@ -188,7 +188,7 @@ const FetchInventoryMaster = () => {
 
       {/* Table Section */}
       <div ref={containerRef} className="flex-1 overflow-auto">
-        <table className="w-full border-collapse border border-gray-300">
+        <table className="w-full border-collapse border border-gray-300 text-[12.5px]">
           <thead className="bg-[#004d26] text-white text-left [&_th]:px-[0.5] [&_th]:py-1 [&_th]:border [&_th]:border-gray-500">
             <tr className="bg-[#004d26] text-white text-left  ">
               <th className="border border-gray-400 text-center">S. No</th>           
@@ -200,8 +200,8 @@ const FetchInventoryMaster = () => {
             </tr>
           </thead>
 
-          <tbody className="[&_th]:px-1 [&_th]:py-1 [&_th]:border [&_th]:border-gray-500" >
-            {filteredCustomers.length > 0 ? (
+          <tbody className="[&_th]:px-1 [&_th]:py-1 [&_th]:border [&_th]:border-gray-500 text-[12.5px]" >
+              {filteredCustomers.length > 0 ? (
               filteredCustomers.map((customer, rowIndex) => {
                 const rowData = [
                   rowIndex + 1,
@@ -236,7 +236,7 @@ const FetchInventoryMaster = () => {
                           }
                     ${colIndex === 0 || colIndex === 4
                             ? 'text-center'
-                            : colIndex === 6 || colIndex === 7 || colIndex === 8
+                            : colIndex === 5
                               ? 'text-right pr-2'
                               : 'text-left pl-2'
                           }
